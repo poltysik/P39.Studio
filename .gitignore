@@ -1,0 +1,9 @@
+.env.local
+.next
+.next-build
+.next-dev
+node_modules
+*.log
+debug.log
+.p39-hero-boxes.json
+.p39-hero-check.jpg
