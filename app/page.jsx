@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Check, Globe2, Moon, Sun, X } from "lucide-react";
+import { ArrowRight, Check, Globe2, Moon, MousePointer2, Sun, X } from "lucide-react";
 import Image from "next/image";
 import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 
@@ -13,6 +13,7 @@ const copy = {
     heroSub: "",
     heroAlt: "Private digital systems studio",
     start: "Start Project",
+    servicesEyebrow: "About us",
     servicesTitle: "Core directions",
     servicesSub: "We shape digital systems around the task: from fast product launches to automation, integrations, and internal tools.",
     serviceGroups: [
@@ -171,12 +172,12 @@ function DecodeText({ value, reserveValue, className = "", as = "span", active =
     </Tag>
   );
 }
-
 function HeroIntroText({ value, reserveValue, className = "", as = "p", active = false, tick = 0 }) {
   const Tag = as;
   const [introTick, setIntroTick] = useState(0);
   const [started, setStarted] = useState(false);
   const [complete, setComplete] = useState(false);
+  const isCompactViewport = typeof window !== "undefined" && window.innerWidth <= 720;
 
   useEffect(() => {
     let interval;
@@ -205,7 +206,9 @@ function HeroIntroText({ value, reserveValue, className = "", as = "p", active =
       ? active
         ? scrambleText(value, tick)
         : value
-      : centeredRevealScrambleText(value, introTick);
+      : isCompactViewport
+        ? revealScrambleText(value, introTick)
+        : centeredRevealScrambleText(value, introTick);
 
   return (
     <Tag className={className} aria-label={value}>
@@ -328,6 +331,7 @@ function TerminalModal({ open, onClose, lang }) {
   const [contactsByMethod, setContactsByMethod] = useState({});
   const [status, setStatus] = useState("idle");
   const [clientPrompt, setClientPrompt] = useState("Client Guest>");
+  const [bootText, setBootText] = useState("");
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -336,10 +340,28 @@ function TerminalModal({ open, onClose, lang }) {
     setStatus("idle");
     setContactsByMethod({});
     setForm({ name: "", method: "Telegram", contact: "", project: "" });
-    setClientPrompt(getClientPrompt());
-    const timer = setTimeout(() => setStep(1), 1580);
-    return () => clearTimeout(timer);
-  }, [open]);
+    const prompt = getClientPrompt();
+    const fullBootText = `${prompt} ${t.init}`;
+    setClientPrompt(prompt);
+    setBootText("");
+
+    let tick = 0;
+    let stepTimer;
+    const interval = window.setInterval(() => {
+      tick += 1;
+      setBootText(fullBootText.slice(0, tick));
+
+      if (tick >= fullBootText.length) {
+        window.clearInterval(interval);
+        stepTimer = window.setTimeout(() => setStep(1), 240);
+      }
+    }, 28);
+
+    return () => {
+      window.clearInterval(interval);
+      if (stepTimer) window.clearTimeout(stepTimer);
+    };
+  }, [open, t.init]);
 
   useEffect(() => {
     if (!open) return;
@@ -437,7 +459,7 @@ function TerminalModal({ open, onClose, lang }) {
             </div>
             <div className="cmd-screen" onClick={keepInputFocus}>
               <div className="cmd-output">
-                <p className="cmd-boot-line" style={{ "--cmd-boot-chars": `${clientPrompt}${t.init}`.length }}>{clientPrompt}{t.init}</p>
+                <p className="cmd-boot-line" aria-label={`${clientPrompt} ${t.init}`}>{bootText}</p>
                 {step >= 1 && (
                   <TerminalInput locked={step > 1} label={t.name} value={form.name} placeholder={t.placeholderName} onChange={(name) => setForm({ ...form, name })} onSubmit={advanceProtocol} onBlur={keepInputFocus} onKeyDown={onEnter} ref={step === 1 ? inputRef : null} />
                 )}
@@ -548,14 +570,31 @@ export default function Home() {
   const [translation, setTranslation] = useState({ active: false, target: "ru", tick: 0 });
   const [themeVeil, setThemeVeil] = useState({ active: false, target: "dark" });
   const [modalOpen, setModalOpen] = useState(false);
+  const [workPreviewUnlocked, setWorkPreviewUnlocked] = useState(true);
   const [navMotion, setNavMotion] = useState({ drift: 0, panelShift: 0 });
   const [navReady, setNavReady] = useState(false);
+  const [mobileNavCollapsed, setMobileNavCollapsed] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const displayLang = translation.active ? translation.target : lang;
   const t = copy[displayLang];
 
   useEffect(() => {
     const timer = window.setTimeout(() => setNavReady(true), 2300);
     return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+
+    const resetTimer = window.setTimeout(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    }, 60);
+
+    return () => window.clearTimeout(resetTimer);
   }, []);
 
   useEffect(() => {
@@ -568,13 +607,18 @@ export default function Home() {
 
     const updateNavDrift = () => {
       frame = 0;
+      const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
+      const isMobileViewport = viewportWidth <= 720;
+      const nextCollapsed = isMobileViewport && window.scrollY > 36;
+      setMobileNavCollapsed(nextCollapsed);
+      if (!nextCollapsed) setMobileNavOpen(false);
+
       const panel = document.querySelector(".site-nav__panel");
       const worksSection = document.getElementById("works");
       const worksRect = worksSection?.getBoundingClientRect();
       const worksStyle = worksSection ? window.getComputedStyle(worksSection) : null;
       const rootFontSize = Number(window.getComputedStyle(document.documentElement).fontSize.replace("px", "")) || 16;
       const maxAxisWidth = rootFontSize * 80;
-      const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
       const centeredPanelLeft = panel ? (viewportWidth - panel.offsetWidth) / 2 : viewportWidth / 2;
       const worksPaddingLeft = worksStyle ? Number(worksStyle.paddingLeft.replace("px", "")) || 0 : 0;
       const worksPaddingRight = worksStyle ? Number(worksStyle.paddingRight.replace("px", "")) || 0 : 0;
@@ -586,7 +630,9 @@ export default function Home() {
       const lockedAxisRight = lockedAxisLeft + lockedAxisWidth;
       const panelLeftOffset = panel ? panel.offsetWidth * navPinnedLeftOffsetRatio : 0;
       const panelShiftBase = worksRect ? lockedAxisRight - centeredPanelLeft + navOutsideGapPx - panelLeftOffset : 0;
-      const panelShift = panelShiftBase;
+      const viewportEdgeGap = isMobileViewport ? 0 : Math.max(24, worksPaddingRight);
+      const panelMaxShift = panel ? viewportWidth - panel.offsetWidth - viewportEdgeGap - centeredPanelLeft : panelShiftBase;
+      const panelShift = isMobileViewport ? panelShiftBase : Math.min(panelShiftBase, panelMaxShift);
       setNavMotion({
         drift: navPinnedDrift,
         panelShift: Math.round(panelShift),
@@ -600,9 +646,11 @@ export default function Home() {
     };
 
     updateNavDrift();
+    window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
 
     return () => {
+      window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
       if (frame) window.cancelAnimationFrame(frame);
     };
@@ -645,39 +693,73 @@ export default function Home() {
 
   const decodeProps = { active: translation.active, tick: translation.tick };
   const languageButtonLabel = lang === "ru" ? "EN" : "RU";
+  const servicesEyebrowLabel = displayLang === "ru" ? "О нас" : "About us";
+  const servicesEyebrowReserve = longestText("О нас", "About us");
   const heroCtaLabel = displayLang === "ru" ? "Создать проект" : "Create Project";
   const heroCtaLabelReserve = longestText("Создать проект", "Create Project");
+  const closeMobileNav = () => setMobileNavOpen(false);
 
   return (
-    <main className="relative min-h-screen overflow-hidden">
+    <main className="relative min-h-[100svh] overflow-hidden sm:min-h-screen">
       <div className="linear-bg" />
       <div className="texture" />
       <div className="grain" />
       <div className={`theme-veil theme-veil--${themeVeil.target} ${themeVeil.active ? "is-active" : ""}`} />
-      <nav className={`site-nav ${navReady ? "is-ready" : ""} fixed left-0 right-0 top-0 z-40 mx-auto flex h-20 max-w-7xl items-center justify-center px-5 sm:px-8`} style={{ "--nav-drift": navMotion.drift, "--nav-panel-shift": `${navMotion.panelShift}px`, "--nav-lift": `${navMotion.lift || 0}px` }}>
-        <div className="site-nav__panel panel flex items-center gap-1 rounded-full px-2 py-2">
+      <nav className={`site-nav ${navReady ? "is-ready" : ""} ${mobileNavCollapsed ? "is-mobile-collapsed" : ""} ${mobileNavOpen ? "is-mobile-open" : ""} fixed left-0 right-0 top-0 z-40 mx-auto flex h-20 max-w-7xl items-center justify-center px-5 sm:px-8`} style={{ "--nav-drift": navMotion.drift, "--nav-panel-shift": `${navMotion.panelShift}px`, "--nav-lift": `${navMotion.lift || 0}px` }}>
+        <div className={`site-nav__panel panel flex items-center gap-1 rounded-full px-2 py-2 ${mobileNavCollapsed ? "is-mobile-collapsed" : ""} ${mobileNavOpen ? "is-mobile-open" : ""}`}>
           {t.nav.map((item, index) => (
-            <a key={item} href={navTargets[index]} className="hidden rounded-full px-3 py-2 text-xs uppercase tracking-[0.18em] text-[color:var(--muted)] transition hover:text-[color:var(--text)] sm:block">
+            <a
+              key={item}
+              href={navTargets[index]}
+              onClick={closeMobileNav}
+              className={`site-nav__control ${index < 2 ? "inline-flex" : "hidden"} w-full items-center justify-center rounded-full px-1.5 py-2 text-center text-[0.54rem] uppercase tracking-[0.1em] text-[color:var(--muted)] transition hover:text-[color:var(--text)] sm:px-3 sm:text-xs sm:tracking-[0.18em] ${index < 2 ? "sm:inline-flex" : "sm:block"}`}
+            >
               <DecodeText value={item} reserveValue={stableText.nav[index]} {...decodeProps} />
             </a>
           ))}
           <span className="mx-1 hidden h-4 w-px bg-[color:var(--line)] sm:block" />
-          <button disabled={controlsLocked} onClick={switchLanguage} className="flex items-center gap-2 rounded-full px-3 py-2 text-xs uppercase tracking-[0.18em] text-[color:var(--muted)] transition hover:text-[color:var(--text)] disabled:cursor-default disabled:opacity-80" aria-label="Switch language">
-            <Globe2 size={14} />
-            <span className="text-accent normal-case tracking-normal">{languageButtonLabel}</span>
+          <button disabled={controlsLocked} onClick={switchLanguage} className="site-nav__control flex w-full items-center justify-center gap-1 rounded-full px-1.5 py-2 text-center text-[0.66rem] uppercase tracking-[0.08em] text-[color:var(--muted)] transition hover:text-[color:var(--text)] disabled:cursor-default disabled:opacity-80 sm:gap-2 sm:px-3 sm:text-xs sm:tracking-[0.18em]" aria-label="Switch language">
+            <Globe2 size={14} className="hidden sm:block" />
+            <span className="normal-case tracking-normal">{languageButtonLabel}</span>
           </button>
-          <button disabled={controlsLocked} onClick={switchTheme} className="rounded-full p-2 text-[color:var(--muted)] transition hover:text-[color:var(--text)] disabled:cursor-default disabled:opacity-80" aria-label="Switch theme">
+          <button disabled={controlsLocked} onClick={switchTheme} className="site-nav__control flex w-full items-center justify-center rounded-full p-2 text-[color:var(--muted)] transition hover:text-[color:var(--text)] disabled:cursor-default disabled:opacity-80" aria-label="Switch theme">
             {theme === "dark" ? <Moon size={16} /> : <Sun size={16} />}
           </button>
+          <button
+            type="button"
+            onClick={() => setMobileNavOpen((current) => !current)}
+            className="site-nav__burger hidden items-center justify-center rounded-[1.05rem] text-[color:var(--text)] sm:hidden"
+            aria-label={mobileNavOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileNavOpen}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+        </div>
+        <div className={`site-nav__drawer panel ${mobileNavOpen ? "is-open" : ""}`}>
+          {t.nav.map((item, index) => (
+            <a key={`${item}-drawer`} href={navTargets[index]} onClick={closeMobileNav} className="site-nav__drawer-link">
+              <DecodeText value={item} reserveValue={stableText.nav[index]} {...decodeProps} />
+            </a>
+          ))}
+          <div className="site-nav__drawer-controls">
+            <button disabled={controlsLocked} onClick={switchLanguage} className="site-nav__drawer-button site-nav__drawer-button--compact" aria-label="Switch language">
+              <span className="tracking-[0.02em]">{languageButtonLabel}</span>
+            </button>
+            <button disabled={controlsLocked} onClick={switchTheme} className="site-nav__drawer-button site-nav__drawer-button--compact" aria-label="Switch theme">
+              {theme === "dark" ? <Moon size={15} /> : <Sun size={15} />}
+            </button>
+          </div>
         </div>
       </nav>
 
-      <section id="top" className="relative z-10 min-h-screen px-5 pt-24 sm:px-8">
-        <div className="hero-axis mx-auto flex min-h-[calc(100vh-6rem)] max-w-7xl items-center justify-center">
+      <section id="top" className="relative z-10 min-h-[100svh] px-5 pt-24 sm:min-h-screen sm:px-8">
+        <div className="hero-axis mx-auto flex min-h-[calc(100svh-6rem)] max-w-7xl items-center justify-center sm:min-h-[calc(100vh-6rem)]">
           <motion.div className="flex flex-col items-center text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
-            <BrandText as="h1" variant="hero" className="max-w-none text-[clamp(6.1rem,26vw,22.5rem)] font-semibold leading-[0.86] tracking-normal" />
-            <HeroIntroText value={t.heroAlt} reserveValue={stableText.heroAlt} {...decodeProps} as="p" className="hero-typewriter mt-10 text-base uppercase tracking-[0.28em] text-[color:var(--dim)] sm:text-lg" />
-            <button onClick={() => setModalOpen(true)} className="hero-cta mt-10 inline-flex items-center justify-center rounded-full text-sm uppercase tracking-[0.18em]">
+            <BrandText as="h1" variant="hero" className="max-w-none text-[clamp(8.4rem,34vw,22.5rem)] font-semibold leading-[0.86] tracking-normal sm:text-[clamp(6.1rem,26vw,22.5rem)]" />
+            <HeroIntroText value={t.heroAlt} reserveValue={stableText.heroAlt} {...decodeProps} as="p" className="hero-typewriter mt-8 max-w-none text-[0.8rem] uppercase leading-relaxed tracking-[0.19em] text-[color:var(--dim)] sm:mt-10 sm:text-lg sm:tracking-[0.28em]" />
+            <button onClick={() => setModalOpen(true)} className="hero-cta mt-8 inline-flex items-center justify-center rounded-full text-sm uppercase tracking-[0.18em] sm:mt-10">
               <DecodeText value={heroCtaLabel} reserveValue={heroCtaLabelReserve} {...decodeProps} />
             </button>
           </motion.div>
@@ -687,7 +769,11 @@ export default function Home() {
       <section id="systems" className="relative z-10 px-5 pb-24 pt-12 sm:px-8">
         <div className="systems-axis mx-auto max-w-7xl">
           <div className="services-layout">
-            <DecodeText value={t.servicesTitle} reserveValue={stableText.servicesTitle} {...decodeProps} as="h2" className="max-w-3xl text-center text-4xl font-semibold leading-tight sm:text-6xl" />
+            <div className="services-heading">
+              <DecodeText value={servicesEyebrowLabel} reserveValue={servicesEyebrowReserve} {...decodeProps} as="p" className="text-center text-sm uppercase tracking-[0.34em] text-accent" />
+              <DecodeText value={t.servicesTitle} reserveValue={stableText.servicesTitle} {...decodeProps} as="h2" className="max-w-3xl text-center text-4xl font-semibold leading-tight sm:text-6xl" />
+            </div>
+            <DecodeText value={t.servicesSub} reserveValue={stableText.servicesSub} {...decodeProps} as="p" className="max-w-3xl text-center text-lg leading-relaxed text-[color:var(--muted)]" />
             <div className="service-matrix">
               {serviceGroups.map((group, index) => (
                 <motion.div key={group.title} className="service-row">
@@ -706,7 +792,6 @@ export default function Home() {
                 </motion.div>
               ))}
             </div>
-            <DecodeText value={t.servicesSub} reserveValue={stableText.servicesSub} {...decodeProps} as="p" className="max-w-3xl text-center text-lg leading-relaxed text-[color:var(--muted)]" />
           </div>
         </div>
       </section>
@@ -716,10 +801,10 @@ export default function Home() {
           <div className="hairline mb-8" />
           <div className="works-showcase">
             <div className="works-showcase__copy">
-              <DecodeText value={t.worksEyebrow} reserveValue={stableText.worksEyebrow} {...decodeProps} as="p" className="text-sm uppercase tracking-[0.34em] text-accent" />
-              <DecodeText value={t.worksTitle} reserveValue={stableText.worksTitle} {...decodeProps} as="h2" className="mt-5 text-4xl font-semibold leading-tight sm:text-6xl" />
-              <DecodeText value={t.worksDescription} reserveValue={stableText.worksDescription} {...decodeProps} as="p" className="mt-6 max-w-xl text-lg leading-relaxed text-[color:var(--muted)]" />
-              <div className="work-meta">
+              <DecodeText value={t.worksEyebrow} reserveValue={stableText.worksEyebrow} {...decodeProps} as="p" className="text-center text-sm uppercase tracking-[0.34em] text-accent" />
+              <DecodeText value={t.worksTitle} reserveValue={stableText.worksTitle} {...decodeProps} as="h2" className="mt-5 text-center text-4xl font-semibold leading-tight sm:text-6xl" />
+              <DecodeText value={t.worksDescription} reserveValue={stableText.worksDescription} {...decodeProps} as="p" className="mt-6 max-w-xl text-center text-lg leading-relaxed text-[color:var(--muted)]" />
+              <div className="work-meta justify-center">
                 {t.workMeta.map((item, index) => (
                   <DecodeText key={item} value={item} reserveValue={stableText.workMeta[index]} {...decodeProps} as="span" />
                 ))}
@@ -734,12 +819,21 @@ export default function Home() {
                   <span />
                 </div>
                 <span className="work-browser__url">recomposition-official.ru</span>
+                <button
+                  type="button"
+                  className={`work-browser__lock ${workPreviewUnlocked ? "is-unlocked" : "is-locked"}`}
+                  onClick={() => setWorkPreviewUnlocked((current) => !current)}
+                  aria-label={workPreviewUnlocked ? "Disable preview interaction" : "Enable preview interaction"}
+                  aria-pressed={workPreviewUnlocked}
+                >
+                  <MousePointer2 size={14} />
+                </button>
                 <a href="https://recomposition-official.ru/" target="_blank" rel="noreferrer" className="work-browser__link">
                   <DecodeText value={t.workOpenSite} reserveValue={stableText.workOpenSite} {...decodeProps} />
                   <ArrowRight size={14} />
                 </a>
               </div>
-              <div className="work-browser__viewport">
+              <div className={`work-browser__viewport ${workPreviewUnlocked ? "is-unlocked" : "is-locked"}`}>
                 <iframe src="/api/recomposition-frame" title="Recomposition official website preview" loading="eager" />
               </div>
             </motion.div>
@@ -759,13 +853,13 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="site-footer relative z-10 px-5 py-12 sm:px-8">
-        <div className="mx-auto grid max-w-7xl items-center gap-4 text-sm text-[color:var(--muted)] sm:grid-cols-[1fr_auto_1fr]">
-          <p>P39.Studio</p>
-          <div className="text-center">
+      <footer className="site-footer relative z-10 px-4 py-5 sm:px-8 sm:py-6">
+        <div className="site-footer__inner mx-auto grid max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-3 text-xs text-[color:var(--muted)] sm:text-sm">
+          <p className="justify-self-start">P39.Studio</p>
+          <div className="justify-self-center text-center">
             <DecodeText value={t.footerPlace} reserveValue={stableText.footerPlace} {...decodeProps} />
           </div>
-          <a href="mailto:P39.Studio@gmail.com" className="justify-self-start transition hover:text-[color:var(--text)] sm:justify-self-end">P39.Studio@gmail.com</a>
+          <a href="mailto:P39.Studio@gmail.com" className="justify-self-end transition hover:text-[color:var(--text)]">P39.Studio@gmail.com</a>
         </div>
       </footer>
 
