@@ -39,7 +39,7 @@ const copy = {
       project: "Describe your project:",
       transmitting: "Transmitting request...",
       success: "Request accepted.\nWe will contact you using the provided details. :)",
-      unavailable: "Request accepted.\nWe will contact you using the provided details. :)",
+      unavailable: "Request was not sent.\nPlease try again later or contact us directly.",
       placeholderName: "",
       placeholderContact: "@alexcarter",
       placeholderProject: "AI automation system for Telegram sales funnel."
@@ -77,7 +77,7 @@ const copy = {
       project: "Опишите проект:",
       transmitting: "Передача запроса...",
       success: "Запрос принят.\nС вами свяжутся по указанным контактам. :)",
-      unavailable: "Запрос принят.\nС вами свяжутся по указанным контактам. :)",
+      unavailable: "Запрос не отправлен.\nПопробуйте позже или напишите нам напрямую.",
       placeholderName: "",
       placeholderContact: "@alexcarter",
       placeholderProject: "AI-автоматизация для Telegram-воронки продаж."
