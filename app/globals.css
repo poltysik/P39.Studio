@@ -277,7 +277,7 @@ button {
   border: 0;
   background: transparent;
   padding: 0;
-  color: #fff;
+  color: var(--accent);
   isolation: isolate;
   overflow: visible;
 }
@@ -288,7 +288,7 @@ button {
   width: 1.05rem;
   height: 1.5px;
   border-radius: 999px;
-  background: currentColor;
+  background: var(--accent);
   transform: translateX(-50%);
   transition: transform 260ms ease, opacity 220ms ease, width 260ms ease;
 }
@@ -1373,10 +1373,10 @@ button {
   justify-content: center;
   width: 2.25rem;
   height: 2.25rem;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(138, 92, 246, 0.5);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.07);
-  color: rgba(244, 244, 245, 0.86);
+  background: rgba(138, 92, 246, 0.08);
+  color: var(--accent);
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.05),
     0 8px 22px rgba(0, 0, 0, 0.2);
@@ -1395,7 +1395,12 @@ button {
 }
 
 .work-browser__lock.is-locked {
-  color: rgba(244, 244, 245, 0.78);
+  color: var(--accent);
+  border-color: rgba(138, 92, 246, 0.42);
+  background: rgba(138, 92, 246, 0.05);
+  box-shadow:
+    inset 0 0 0 1px rgba(138, 92, 246, 0.12),
+    0 0 14px rgba(138, 92, 246, 0.12);
 }
 
 .work-browser__lock:hover,
@@ -1728,7 +1733,7 @@ button {
 
   .site-nav.is-mobile-open .site-nav__burger:hover,
   .site-nav.is-mobile-open .site-nav__burger:focus-visible {
-    color: #fff;
+    color: var(--accent);
     background: transparent;
     box-shadow: none;
   }
@@ -1866,6 +1871,24 @@ button {
   .work-browser__viewport {
     height: 30rem;
     min-height: 26rem;
+  }
+
+  .site-footer__inner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, auto);
+    gap: 1rem;
+  }
+
+  .site-footer__brand {
+    display: none;
+  }
+
+  .site-footer__place {
+    justify-self: start;
+    text-align: left;
+  }
+
+  .site-footer__email {
+    justify-self: end;
   }
 
   .service-row {

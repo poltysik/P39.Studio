@@ -378,7 +378,14 @@ function TerminalModal({ open, onClose, lang }) {
   }, [open]);
 
   useEffect(() => {
-    if (open) setTimeout(() => inputRef.current?.focus(), 120);
+    if (!open || (step !== 1 && step !== 3)) return;
+
+    const focusDelays = [80, 360, 720];
+    const timers = focusDelays.map((delay) =>
+      window.setTimeout(() => inputRef.current?.focus({ preventScroll: true }), delay)
+    );
+
+    return () => timers.forEach((timer) => window.clearTimeout(timer));
   }, [open, step]);
 
   const keepInputFocus = () => {
@@ -855,11 +862,11 @@ export default function Home() {
 
       <footer className="site-footer relative z-10 px-4 py-5 sm:px-8 sm:py-6">
         <div className="site-footer__inner mx-auto grid max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-3 text-xs text-[color:var(--muted)] sm:text-sm">
-          <p className="justify-self-start">P39.Studio</p>
-          <div className="justify-self-center text-center">
+          <p className="site-footer__brand justify-self-start">P39.Studio</p>
+          <div className="site-footer__place justify-self-center text-center">
             <DecodeText value={t.footerPlace} reserveValue={stableText.footerPlace} {...decodeProps} />
           </div>
-          <a href="mailto:P39.Studio@gmail.com" className="justify-self-end transition hover:text-[color:var(--text)]">P39.Studio@gmail.com</a>
+          <a href="mailto:P39.Studio@gmail.com" className="site-footer__email justify-self-end transition hover:text-[color:var(--text)]">P39.Studio@gmail.com</a>
         </div>
       </footer>
 
