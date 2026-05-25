@@ -487,8 +487,9 @@ button {
   border-radius: 999px;
   background: var(--accent);
   transform: translateY(-50%);
+  transform-origin: left center;
   backface-visibility: hidden;
-  will-change: clip-path;
+  will-change: transform, opacity;
 }
 
 .brand-logo--hero .brand-logo__divider::before {
@@ -498,7 +499,7 @@ button {
   min-height: 2px;
   background: var(--accent);
   box-shadow: 0 0 8px rgba(138, 92, 246, 0.22);
-  clip-path: inset(0 100% 0 0);
+  transform: translateY(-50%) scaleX(0);
   animation: hero-divider-line-reveal 675ms linear 160ms both;
 }
 
@@ -694,11 +695,13 @@ button {
 
 @keyframes hero-divider-line-reveal {
   0% {
-    clip-path: inset(0 100% 0 0);
+    opacity: 0.72;
+    transform: translateY(-50%) scaleX(0);
   }
 
   100% {
-    clip-path: inset(0 0 0 0);
+    opacity: 1;
+    transform: translateY(-50%) scaleX(1);
   }
 }
 
