@@ -218,11 +218,15 @@ button {
   gap: 0;
   color: var(--text);
   text-decoration: none;
+  overflow: visible;
 }
 
 .brand-logo__mark {
+  display: inline-block;
+  padding-right: 0.045em;
   font-weight: 720;
   letter-spacing: -0.01em;
+  overflow: visible;
 }
 
 .brand-logo__studio {
@@ -431,6 +435,7 @@ button {
 
 .brand-logo--hero .brand-logo__mark {
   display: block;
+  padding-right: 0.07em;
   transform: scaleX(1.08);
   transform-origin: bottom center;
   font-family: "Inter Tight", "Neue Montreal", "Satoshi", "General Sans", "Helvetica Neue", Arial, sans-serif;
@@ -1081,6 +1086,30 @@ button {
   white-space: pre;
 }
 
+@media (max-width: 640px) {
+  .cmd-input-shell {
+    min-height: 2.2rem;
+    border-bottom: 1px solid rgba(138, 92, 246, 0.44);
+  }
+
+  .cmd-input,
+  .cmd-input-visual {
+    padding-bottom: 0.34rem;
+  }
+
+  .cmd-submit-symbol {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    margin-left: 0.5rem;
+    border: 1px solid rgba(138, 92, 246, 0.48);
+    border-radius: 999px;
+    background: rgba(138, 92, 246, 0.12);
+    font-size: 1.25rem;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
 .cmd-input-visual.is-placeholder {
   color: var(--cmd-dim);
 }
@@ -1128,6 +1157,8 @@ button {
   line-height: inherit;
   outline: none;
   padding: 0.18rem 0;
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 .cmd-input::placeholder {
@@ -1298,6 +1329,31 @@ button {
   text-align: center;
 }
 
+.work-browser__nav-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(138, 92, 246, 0.42);
+  border-radius: 999px;
+  background: rgba(138, 92, 246, 0.08);
+  color: var(--accent);
+  box-shadow:
+    inset 0 0 0 1px rgba(138, 92, 246, 0.1),
+    0 0 14px rgba(138, 92, 246, 0.14);
+  transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.work-browser__nav-button:hover,
+.work-browser__nav-button:focus-visible {
+  border-color: rgba(138, 92, 246, 0.66);
+  background: rgba(138, 92, 246, 0.18);
+  box-shadow:
+    inset 0 0 0 1px rgba(138, 92, 246, 0.24),
+    0 0 18px rgba(138, 92, 246, 0.34),
+    0 0 34px rgba(138, 92, 246, 0.18);
+  transform: translateY(-1px);
+}
+
 .work-browser {
   position: relative;
   justify-self: center;
@@ -1323,19 +1379,50 @@ button {
   padding: 0 1rem;
 }
 
+.work-browser__bottom-nav {
+  display: grid;
+  grid-template-columns: 2.25rem 1fr 2.25rem;
+  align-items: center;
+  justify-content: stretch;
+  gap: 0.75rem;
+  min-height: 3.15rem;
+  border-top: 1px solid var(--line);
+  padding: 0 1rem;
+}
+
+.work-browser__bottom-nav .work-browser__nav-button:first-child {
+  grid-column: 1;
+  justify-self: start;
+}
+
+.work-browser__bottom-nav .work-browser__nav-button:last-child {
+  grid-column: 3;
+  justify-self: end;
+}
+
+.work-browser__nav-button {
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+}
+
 .work-browser__dots {
   display: inline-flex;
   gap: 0.42rem;
 }
 
-.work-browser__dots span {
+.work-browser__dots button {
   width: 0.48rem;
   height: 0.48rem;
+  border: 0;
   border-radius: 999px;
+  padding: 0;
   background: rgba(255, 255, 255, 0.22);
+  transition: width 220ms ease, background-color 220ms ease, box-shadow 220ms ease, opacity 220ms ease;
 }
 
-.work-browser__dots span:first-child {
+.work-browser__dots button.is-active {
+  width: 1.25rem;
   background: var(--accent);
   box-shadow: 0 0 12px rgba(138, 92, 246, 0.36);
 }
@@ -1380,6 +1467,8 @@ button {
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.05),
     0 8px 22px rgba(0, 0, 0, 0.2);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   transition: color 220ms ease, border-color 220ms ease, box-shadow 220ms ease, background-color 220ms ease, text-shadow 220ms ease, transform 180ms ease;
 }
 
@@ -1404,6 +1493,7 @@ button {
 }
 
 .work-browser__lock:hover,
+.work-browser__lock:active,
 .work-browser__lock:focus-visible {
   color: var(--accent);
   border-color: rgba(138, 92, 246, 0.62);
@@ -1425,11 +1515,21 @@ button {
 }
 
 .work-browser__viewport iframe {
+  position: absolute;
+  inset: 0;
   display: block;
-  width: 100%;
+  width: calc(100% + 24px);
   height: 100%;
   border: 0;
   background: #050506;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 360ms ease;
+}
+
+.work-browser__viewport iframe.is-active {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .work-browser__viewport.is-locked iframe {
@@ -1448,6 +1548,32 @@ button {
 [data-theme="light"] .work-browser__viewport,
 [data-theme="light"] .work-browser__viewport iframe {
   background: #faf8f4;
+}
+
+.work-browser__loading {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(138, 92, 246, 0.16), transparent 24rem),
+    #050506;
+}
+
+.work-browser__loading span {
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 1px solid rgba(138, 92, 246, 0.2);
+  border-top-color: var(--accent);
+  border-radius: 999px;
+  animation: work-loader-spin 820ms linear infinite;
+}
+
+@keyframes work-loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .services-layout {
@@ -1866,6 +1992,18 @@ button {
 
   .work-browser__link {
     display: none;
+  }
+
+  .work-browser__bottom-nav {
+    grid-template-columns: 2.45rem 1fr 2.45rem;
+    min-height: 3.35rem;
+    gap: 0.55rem;
+    padding-inline: 0.75rem;
+  }
+
+  .work-browser__nav-button {
+    width: 2.45rem;
+    height: 2.45rem;
   }
 
   .work-browser__viewport {

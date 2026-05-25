@@ -1,9 +1,10 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Check, Globe2, Moon, MousePointer2, Sun, X } from "lucide-react";
+import { ArrowRight, Check, ChevronLeft, ChevronRight, Globe2, Moon, MousePointer2, Sun, X } from "lucide-react";
 import Image from "next/image";
 import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 
 const copy = {
   en: {
@@ -117,6 +118,83 @@ const navOutsideGapPx = 220;
 const navLockedAxisShiftRem = -2.45;
 const navPinnedDrift = 1;
 const navPinnedLeftOffsetRatio = 0.125;
+
+const portfolioWorks = [
+  {
+    id: "recomposition",
+    urlLabel: "recomposition-official.ru",
+    href: "https://recomposition-official.ru/",
+    previewSrc: "/api/recomposition-frame",
+    title: {
+      ru: "Recomposition",
+      en: "Recomposition"
+    },
+    tags: {
+      ru: ["Лендинг", "Фитнес-продукт", "UX / UI"],
+      en: ["Landing page", "Fitness product", "UX / UI"]
+    }
+  },
+  {
+    id: "terra-forma",
+    urlLabel: "terra-forma-chi.vercel.app",
+    href: "https://terra-forma-chi.vercel.app/",
+    previewSrc: "https://terra-forma-chi.vercel.app/",
+    title: {
+      ru: "Terra Forma",
+      en: "Terra Forma"
+    },
+    tags: {
+      ru: ["Ландшафтный дизайн", "Digital experience", "Organic UI"],
+      en: ["Landscape design", "Digital experience", "Organic UI"]
+    }
+  },
+  {
+    id: "atelier-nordovest",
+    urlLabel: "atelier-nordovest.vercel.app",
+    href: "https://atelier-nordovest.vercel.app/",
+    previewSrc: "https://atelier-nordovest.vercel.app/",
+    title: {
+      ru: "Atelier Nordovest",
+      en: "Atelier Nordovest"
+    },
+    tags: {
+      ru: ["Кухни на заказ", "Editorial layout", "Light luxury"],
+      en: ["Custom kitchens", "Editorial layout", "Light luxury"]
+    }
+  },
+  {
+    id: "atelier-build",
+    urlLabel: "atelier-build-studio-site.vercel.app",
+    href: "https://atelier-build-studio-site.vercel.app/",
+    previewSrc: "https://atelier-build-studio-site.vercel.app/",
+    title: {
+      ru: "Atelier Build",
+      en: "Atelier Build"
+    },
+    tags: {
+      ru: ["Ремонт под ключ", "Premium commercial", "Калькулятор"],
+      en: ["Renovation studio", "Premium commercial", "Estimator"]
+    }
+  },
+  {
+    id: "apex-ege",
+    urlLabel: "apex-ege.vercel.app",
+    href: "https://apex-ege.vercel.app/",
+    previewSrc: "https://apex-ege.vercel.app/",
+    title: {
+      ru: "Apex EGE",
+      en: "Apex EGE"
+    },
+    tags: {
+      ru: ["EdTech", "Подготовка к ЕГЭ", "Conversion UI"],
+      en: ["EdTech", "Exam preparation", "Conversion UI"]
+    }
+  }
+];
+
+const portfolioTagReserve = Array.from({ length: 3 }, (_, tagIndex) =>
+  longestText(...portfolioWorks.flatMap((work) => [work.tags.ru[tagIndex], work.tags.en[tagIndex]]))
+);
 
 function scrambleText(value, tick) {
   return value
@@ -514,6 +592,19 @@ function renderHighlightedAt(value, placeholder) {
   ));
 }
 
+function openTerminalWithMobileFocus(openModal) {
+  flushSync(() => openModal(true));
+
+  if (typeof window === "undefined") return;
+
+  const input = document.querySelector(".cmd-input:not(.is-locked)");
+  input?.focus();
+
+  window.setTimeout(() => {
+    document.querySelector(".cmd-input:not(.is-locked)")?.focus();
+  }, 60);
+}
+
 function TerminalStatusText({ value }) {
   const smileIndex = value.indexOf(":)");
 
@@ -578,10 +669,14 @@ export default function Home() {
   const [themeVeil, setThemeVeil] = useState({ active: false, target: "dark" });
   const [modalOpen, setModalOpen] = useState(false);
   const [workPreviewUnlocked, setWorkPreviewUnlocked] = useState(true);
+  const [activeWorkIndex, setActiveWorkIndex] = useState(0);
+  const [workFramesEnabled, setWorkFramesEnabled] = useState([0]);
+  const [loadedWorkFrames, setLoadedWorkFrames] = useState({});
   const [navMotion, setNavMotion] = useState({ drift: 0, panelShift: 0 });
   const [navReady, setNavReady] = useState(false);
   const [mobileNavCollapsed, setMobileNavCollapsed] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const workPreviewTouchHandledRef = useRef(false);
   const displayLang = translation.active ? translation.target : lang;
   const t = copy[displayLang];
 
@@ -665,6 +760,53 @@ export default function Home() {
 
   const serviceGroups = useMemo(() => t.serviceGroups, [t.serviceGroups]);
   const controlsLocked = translation.active || themeVeil.active;
+  const activeWork = portfolioWorks[activeWorkIndex];
+  const activeWorkTags = activeWork.tags[displayLang];
+  const activeWorkTitle = activeWork.title[displayLang];
+  const enabledWorkFrames = portfolioWorks.filter((_, index) => workFramesEnabled.includes(index));
+
+  const switchWork = (direction) => {
+    setActiveWorkIndex((current) => {
+      const next = (current + direction + portfolioWorks.length) % portfolioWorks.length;
+      setWorkFramesEnabled((enabled) => (enabled.includes(next) ? enabled : [...enabled, next]));
+      return next;
+    });
+  };
+
+  const selectWork = (index) => {
+    setWorkFramesEnabled((enabled) => (enabled.includes(index) ? enabled : [...enabled, index]));
+    setActiveWorkIndex(index);
+  };
+
+  const registerWorkFrameLoad = (index) => {
+    setLoadedWorkFrames((current) => ({ ...current, [index]: true }));
+    if (index !== 0) return;
+
+    window.setTimeout(() => {
+      setWorkFramesEnabled((enabled) => {
+        const nextIndex = enabled.length;
+        if (nextIndex >= portfolioWorks.length) return enabled;
+        if (enabled.includes(nextIndex)) return enabled;
+        return [...enabled, nextIndex];
+      });
+    }, 500);
+  };
+
+  useEffect(() => {
+    if (!loadedWorkFrames[0]) return;
+    if (workFramesEnabled.length >= portfolioWorks.length) return;
+
+    const timer = window.setTimeout(() => {
+      setWorkFramesEnabled((enabled) => {
+        const nextIndex = enabled.length;
+        if (nextIndex >= portfolioWorks.length) return enabled;
+        if (enabled.includes(nextIndex)) return enabled;
+        return [...enabled, nextIndex];
+      });
+    }, 950);
+
+    return () => window.clearTimeout(timer);
+  }, [loadedWorkFrames, workFramesEnabled.length]);
 
   const switchLanguage = () => {
     if (controlsLocked) return;
@@ -766,7 +908,7 @@ export default function Home() {
           <motion.div className="flex flex-col items-center text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
             <BrandText as="h1" variant="hero" className="max-w-none text-[clamp(8.4rem,34vw,22.5rem)] font-semibold leading-[0.86] tracking-normal sm:text-[clamp(6.1rem,26vw,22.5rem)]" />
             <HeroIntroText value={t.heroAlt} reserveValue={stableText.heroAlt} {...decodeProps} as="p" className="hero-typewriter mt-8 max-w-none text-[0.8rem] uppercase leading-relaxed tracking-[0.19em] text-[color:var(--dim)] sm:mt-10 sm:text-lg sm:tracking-[0.28em]" />
-            <button onClick={() => setModalOpen(true)} className="hero-cta mt-8 inline-flex items-center justify-center rounded-full text-sm uppercase tracking-[0.18em] sm:mt-10">
+            <button onClick={() => openTerminalWithMobileFocus(setModalOpen)} className="hero-cta mt-8 inline-flex items-center justify-center rounded-full text-sm uppercase tracking-[0.18em] sm:mt-10">
               <DecodeText value={heroCtaLabel} reserveValue={heroCtaLabelReserve} {...decodeProps} />
             </button>
           </motion.div>
@@ -812,36 +954,83 @@ export default function Home() {
               <DecodeText value={t.worksTitle} reserveValue={stableText.worksTitle} {...decodeProps} as="h2" className="mt-5 text-center text-4xl font-semibold leading-tight sm:text-6xl" />
               <DecodeText value={t.worksDescription} reserveValue={stableText.worksDescription} {...decodeProps} as="p" className="mt-6 max-w-xl text-center text-lg leading-relaxed text-[color:var(--muted)]" />
               <div className="work-meta justify-center">
-                {t.workMeta.map((item, index) => (
-                  <DecodeText key={item} value={item} reserveValue={stableText.workMeta[index]} {...decodeProps} as="span" />
+                {activeWorkTags.map((item, index) => (
+                  <DecodeText key={`${activeWork.id}-${item}`} value={item} reserveValue={portfolioTagReserve[index]} {...decodeProps} as="span" />
                 ))}
               </div>
             </div>
 
             <motion.div className="work-browser" initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}>
               <div className="work-browser__top">
-                <div className="work-browser__dots" aria-hidden="true">
-                  <span />
-                  <span />
-                  <span />
+                <div className="work-browser__dots" aria-label="Индикаторы примеров работ">
+                  {portfolioWorks.map((work, index) => (
+                    <button
+                      key={`${work.id}-top-dot`}
+                      type="button"
+                      onClick={() => selectWork(index)}
+                      className={index === activeWorkIndex ? "is-active" : ""}
+                      aria-label={`Открыть ${work.title.ru}`}
+                      aria-pressed={index === activeWorkIndex}
+                    />
+                  ))}
                 </div>
-                <span className="work-browser__url">recomposition-official.ru</span>
+                <span className="work-browser__url">{activeWork.urlLabel}</span>
                 <button
                   type="button"
                   className={`work-browser__lock ${workPreviewUnlocked ? "is-unlocked" : "is-locked"}`}
-                  onClick={() => setWorkPreviewUnlocked((current) => !current)}
+                  onPointerDown={(event) => {
+                    if (event.pointerType === "touch") {
+                      event.preventDefault();
+                      workPreviewTouchHandledRef.current = true;
+                      setWorkPreviewUnlocked((current) => !current);
+                    }
+                  }}
+                  onClick={() => {
+                    if (workPreviewTouchHandledRef.current) {
+                      workPreviewTouchHandledRef.current = false;
+                      return;
+                    }
+                    setWorkPreviewUnlocked((current) => !current);
+                  }}
                   aria-label={workPreviewUnlocked ? "Disable preview interaction" : "Enable preview interaction"}
                   aria-pressed={workPreviewUnlocked}
                 >
                   <MousePointer2 size={14} />
                 </button>
-                <a href="https://recomposition-official.ru/" target="_blank" rel="noreferrer" className="work-browser__link">
+                <a href={activeWork.href} target="_blank" rel="noreferrer" className="work-browser__link">
                   <DecodeText value={t.workOpenSite} reserveValue={stableText.workOpenSite} {...decodeProps} />
                   <ArrowRight size={14} />
                 </a>
               </div>
               <div className={`work-browser__viewport ${workPreviewUnlocked ? "is-unlocked" : "is-locked"}`}>
-                <iframe src="/api/recomposition-frame" title="Recomposition official website preview" loading="eager" />
+                {enabledWorkFrames.map((work) => {
+                  const index = portfolioWorks.findIndex((item) => item.id === work.id);
+                  const isActive = index === activeWorkIndex;
+
+                  return (
+                    <iframe
+                      key={work.id}
+                      src={work.previewSrc}
+                      title={`${work.title[displayLang]} website preview`}
+                      loading={index === 0 ? "eager" : "lazy"}
+                      onLoad={() => registerWorkFrameLoad(index)}
+                      className={isActive ? "is-active" : ""}
+                    />
+                  );
+                })}
+                {!loadedWorkFrames[activeWorkIndex] && (
+                  <div className="work-browser__loading" aria-hidden="true">
+                    <span />
+                  </div>
+                )}
+              </div>
+              <div className="work-browser__bottom-nav">
+                <button type="button" onClick={() => switchWork(-1)} className="work-browser__nav-button" aria-label="Предыдущий сайт">
+                  <ChevronLeft size={16} />
+                </button>
+                <button type="button" onClick={() => switchWork(1)} className="work-browser__nav-button" aria-label="Следующий сайт">
+                  <ChevronRight size={16} />
+                </button>
               </div>
             </motion.div>
           </div>
@@ -854,7 +1043,7 @@ export default function Home() {
             <DecodeText value={t.terminalTitle} reserveValue={stableText.terminalTitle} {...decodeProps} as="h2" className="text-4xl font-semibold leading-none sm:text-6xl" />
             <DecodeText value={t.contactDescription} reserveValue={stableText.contactDescription} {...decodeProps} as="p" className="mx-auto mt-6 max-w-3xl text-lg leading-relaxed text-[color:var(--muted)]" />
           </div>
-          <button onClick={() => setModalOpen(true)} className="contact-cta inline-flex items-center justify-center rounded-full text-sm uppercase tracking-[0.18em]">
+          <button onClick={() => openTerminalWithMobileFocus(setModalOpen)} className="contact-cta inline-flex items-center justify-center rounded-full text-sm uppercase tracking-[0.18em]">
             <DecodeText value={heroCtaLabel} reserveValue={heroCtaLabelReserve} {...decodeProps} />
           </button>
         </div>
