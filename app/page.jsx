@@ -135,31 +135,17 @@ const portfolioWorks = [
     }
   },
   {
-    id: "terra-forma",
-    urlLabel: "terra-forma-chi.vercel.app",
-    href: "https://terra-forma-chi.vercel.app/",
-    previewSrc: "https://terra-forma-chi.vercel.app/",
+    id: "apex-ege",
+    urlLabel: "apex-ege.vercel.app",
+    href: "https://apex-ege.vercel.app/",
+    previewSrc: "https://apex-ege.vercel.app/",
     title: {
-      ru: "Terra Forma",
-      en: "Terra Forma"
+      ru: "Apex EGE",
+      en: "Apex EGE"
     },
     tags: {
-      ru: ["Ландшафтный дизайн", "Digital experience", "Organic UI"],
-      en: ["Landscape design", "Digital experience", "Organic UI"]
-    }
-  },
-  {
-    id: "atelier-nordovest",
-    urlLabel: "atelier-nordovest.vercel.app",
-    href: "https://atelier-nordovest.vercel.app/",
-    previewSrc: "https://atelier-nordovest.vercel.app/",
-    title: {
-      ru: "Atelier Nordovest",
-      en: "Atelier Nordovest"
-    },
-    tags: {
-      ru: ["Кухни на заказ", "Editorial layout", "Light luxury"],
-      en: ["Custom kitchens", "Editorial layout", "Light luxury"]
+      ru: ["EdTech", "Подготовка к ЕГЭ", "Conversion UI"],
+      en: ["EdTech", "Exam preparation", "Conversion UI"]
     }
   },
   {
@@ -177,17 +163,31 @@ const portfolioWorks = [
     }
   },
   {
-    id: "apex-ege",
-    urlLabel: "apex-ege.vercel.app",
-    href: "https://apex-ege.vercel.app/",
-    previewSrc: "https://apex-ege.vercel.app/",
+    id: "atelier-nordovest",
+    urlLabel: "atelier-nordovest.vercel.app",
+    href: "https://atelier-nordovest.vercel.app/",
+    previewSrc: "https://atelier-nordovest.vercel.app/",
     title: {
-      ru: "Apex EGE",
-      en: "Apex EGE"
+      ru: "Atelier Nordovest",
+      en: "Atelier Nordovest"
     },
     tags: {
-      ru: ["EdTech", "Подготовка к ЕГЭ", "Conversion UI"],
-      en: ["EdTech", "Exam preparation", "Conversion UI"]
+      ru: ["Кухни на заказ", "Editorial layout", "Light luxury"],
+      en: ["Custom kitchens", "Editorial layout", "Light luxury"]
+    }
+  },
+  {
+    id: "terra-forma",
+    urlLabel: "terra-forma-chi.vercel.app",
+    href: "https://terra-forma-chi.vercel.app/",
+    previewSrc: "https://terra-forma-chi.vercel.app/",
+    title: {
+      ru: "Terra Forma",
+      en: "Terra Forma"
+    },
+    tags: {
+      ru: ["Ландшафтный дизайн", "Digital experience", "Organic UI"],
+      en: ["Landscape design", "Digital experience", "Organic UI"]
     }
   }
 ];
