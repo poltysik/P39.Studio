@@ -1421,6 +1421,10 @@ button {
   transition: width 220ms ease, background-color 220ms ease, box-shadow 220ms ease, opacity 220ms ease;
 }
 
+[data-theme="light"] .work-browser__dots button {
+  background: rgba(17, 17, 19, 0.3);
+}
+
 .work-browser__dots button.is-active {
   width: 1.25rem;
   background: var(--accent);
