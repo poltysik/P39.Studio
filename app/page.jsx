@@ -1020,7 +1020,7 @@ export default function Home() {
                 })}
                 {!loadedWorkFrames[activeWorkIndex] && (
                   <div className="work-browser__loading" aria-hidden="true">
-                    <span />
+                    <span className="work-browser__loading-logo">P39</span>
                   </div>
                 )}
               </div>
