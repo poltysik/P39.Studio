@@ -849,6 +849,7 @@ export default function Home() {
   const [workCategoryMotionKey, setWorkCategoryMotionKey] = useState(0);
   const [workFramesEnabled, setWorkFramesEnabled] = useState([0]);
   const [loadedWorkFrames, setLoadedWorkFrames] = useState({});
+  const [workFrameHeights, setWorkFrameHeights] = useState({});
   const [navMotion, setNavMotion] = useState({ drift: 0, panelShift: 0 });
   const [navReady, setNavReady] = useState(false);
   const [mobileNavCollapsed, setMobileNavCollapsed] = useState(false);
@@ -1039,8 +1040,24 @@ export default function Home() {
     });
   };
 
-  const registerWorkFrameLoad = (index) => {
+  const registerWorkFrameLoad = (index, frame) => {
     setLoadedWorkFrames((current) => ({ ...current, [index]: true }));
+    try {
+      const doc = frame?.contentDocument;
+      const height = Math.max(
+        doc?.documentElement?.scrollHeight || 0,
+        doc?.body?.scrollHeight || 0
+      );
+      if (height > 0) {
+        setWorkFrameHeights((current) => ({
+          ...current,
+          [index]: Math.min(Math.max(height, 1200), 12000)
+        }));
+      }
+    } catch {
+      // Cross-origin previews keep the default mobile frame height.
+    }
+
     if (index !== 0) return;
 
     window.setTimeout(() => {
@@ -1339,8 +1356,9 @@ export default function Home() {
                               title={`${work.title[displayLang]} website preview`}
                               scrolling="yes"
                               loading={index === 0 ? "eager" : "lazy"}
-                              onLoad={() => registerWorkFrameLoad(index)}
+                              onLoad={(event) => registerWorkFrameLoad(index, event.currentTarget)}
                               className={isActive ? "is-active" : ""}
+                              style={{ "--frame-scroll-height": `${workFrameHeights[index] || 12000}px` }}
                             />
                           );
                         })}

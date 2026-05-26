@@ -2435,14 +2435,28 @@ button {
   .works-showcase {
     grid-template-columns: 1fr;
     gap: 2rem;
+    justify-items: center;
+    text-align: center;
   }
 
   .works-showcase__copy {
     position: static;
+    display: flex;
+    width: 100%;
+    max-width: 23.5rem;
+    flex-direction: column;
+    align-items: center;
   }
 
   #contact {
-    padding-top: 5rem;
+    padding-top: 8rem;
+    padding-bottom: 4rem;
+  }
+
+  .contact-band {
+    gap: 2.75rem;
+    padding-top: 4.5rem;
+    padding-bottom: 2.75rem;
   }
 
   .work-browser__top {
@@ -2469,10 +2483,26 @@ button {
   .work-browser__viewport {
     height: 30rem;
     min-height: 26rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .work-browser__category-content::after {
+    display: none;
   }
 
   .work-browser__viewport iframe {
+    position: relative;
+    display: block;
+    min-height: 100%;
     width: 100%;
+    height: var(--frame-scroll-height, 2600px);
+  }
+
+  .work-browser__viewport iframe:not(.is-active) {
+    display: none;
   }
 
   .infographic-stage::before {
