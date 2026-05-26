@@ -123,6 +123,49 @@ const navLockedAxisShiftRem = -2.45;
 const navPinnedDrift = 1;
 const navPinnedLeftOffsetRatio = 0.125;
 
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://p39.studio/#organization",
+      name: "P39.Studio",
+      url: "https://p39.studio/",
+      logo: "https://p39.studio/p39-logo-original.png",
+      email: "P39.Studio@gmail.com"
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://p39.studio/#website",
+      url: "https://p39.studio/",
+      name: "P39.Studio",
+      inLanguage: "ru-RU",
+      publisher: {
+        "@id": "https://p39.studio/#organization"
+      }
+    },
+    {
+      "@type": "ProfessionalService",
+      "@id": "https://p39.studio/#service",
+      name: "P39.Studio",
+      url: "https://p39.studio/",
+      image: "https://p39.studio/p39-logo-original.png",
+      email: "P39.Studio@gmail.com",
+      areaServed: ["RU", "Worldwide"],
+      serviceType: [
+        "Разработка лендингов",
+        "Web-продукты",
+        "Инфографика для маркетплейсов",
+        "Telegram-боты",
+        "Автоматизация бизнес-процессов"
+      ],
+      provider: {
+        "@id": "https://p39.studio/#organization"
+      }
+    }
+  ]
+};
+
 const portfolioWorks = [
   {
     id: "recomposition",
@@ -873,13 +916,14 @@ export default function Home() {
   const [activeInfographicIndex, setActiveInfographicIndex] = useState(0);
   const [activeWorkCategoryIndex, setActiveWorkCategoryIndex] = useState(0);
   const [workCategoryMotionKey, setWorkCategoryMotionKey] = useState(0);
-  const [workFramesEnabled, setWorkFramesEnabled] = useState([0]);
+  const [workFramesEnabled, setWorkFramesEnabled] = useState([]);
   const [loadedWorkFrames, setLoadedWorkFrames] = useState({});
   const [workFrameHeights, setWorkFrameHeights] = useState({});
   const [navMotion, setNavMotion] = useState({ drift: 0, panelShift: 0 });
   const [navReady, setNavReady] = useState(false);
   const [mobileNavCollapsed, setMobileNavCollapsed] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const worksSectionRef = useRef(null);
   const workPreviewTouchHandledRef = useRef(false);
   const displayLang = translation.active ? translation.target : lang;
   const t = copy[displayLang];
@@ -1021,6 +1065,20 @@ export default function Home() {
     };
   }, []);
 
+  useEffect(() => {
+    const worksSection = worksSectionRef.current;
+    if (!worksSection || workFramesEnabled.length > 0) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      setWorkFramesEnabled((enabled) => (enabled.length > 0 ? enabled : [activeWorkIndex]));
+      observer.disconnect();
+    }, { rootMargin: "360px 0px", threshold: 0.01 });
+
+    observer.observe(worksSection);
+    return () => observer.disconnect();
+  }, [activeWorkIndex, workFramesEnabled.length]);
+
   const serviceGroups = useMemo(() => t.serviceGroups, [t.serviceGroups]);
   const controlsLocked = translation.active || themeVeil.active;
   const activeWorkCategory = t.worksCategories[activeWorkCategoryIndex];
@@ -1154,6 +1212,10 @@ export default function Home() {
 
   return (
     <main className="relative min-h-[100svh] overflow-hidden sm:min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <div className="linear-bg" />
       <div className="texture" />
       <div className="grain" />
@@ -1249,7 +1311,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="works" className="relative z-10 px-5 py-16 sm:px-8">
+      <section id="works" ref={worksSectionRef} className="relative z-10 px-5 py-16 sm:px-8">
         <div className="works-axis mx-auto max-w-7xl">
           <div className="hairline mb-8" />
           <div className="works-showcase">
@@ -1368,7 +1430,7 @@ export default function Home() {
                               aria-label={`Открыть ${work.title.ru}`}
                               aria-pressed={isActive}
                             >
-                              <Image src={work.imageSrc} alt={work.title[displayLang]} fill sizes="(max-width: 720px) 72vw, 29rem" priority={index === 0} />
+                              <Image src={work.imageSrc} alt={work.title[displayLang]} fill sizes="(max-width: 720px) 72vw, 29rem" loading="lazy" quality={76} />
                             </button>
                           );
                         })}
@@ -1385,7 +1447,7 @@ export default function Home() {
                               src={work.previewSrc}
                               title={`${work.title[displayLang]} website preview`}
                               scrolling="yes"
-                              loading={index === 0 ? "eager" : "lazy"}
+                              loading="lazy"
                               onLoad={(event) => registerWorkFrameLoad(index, event.currentTarget)}
                               className={isActive ? "is-active" : ""}
                               style={{ "--frame-scroll-height": `${workFrameHeights[index] || 12000}px` }}
