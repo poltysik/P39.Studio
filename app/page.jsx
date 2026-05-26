@@ -375,6 +375,82 @@ function getClientPrompt() {
   return "Client Guest>";
 }
 
+function getStatsSessionId() {
+  if (typeof window === "undefined") return "";
+
+  const key = "p39_stats_session";
+  const existing = window.localStorage.getItem(key);
+  if (existing) return existing;
+
+  const random = window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  const sessionId = `p39-${random}`;
+  window.localStorage.setItem(key, sessionId);
+  return sessionId;
+}
+
+function getDeviceType() {
+  if (typeof navigator === "undefined") return "unknown";
+  const ua = navigator.userAgent || "";
+  if (/tablet|ipad/i.test(ua)) return "tablet";
+  if (/mobile|android|iphone|ipod/i.test(ua)) return "mobile";
+  return "desktop";
+}
+
+function getBrowserFamily() {
+  if (typeof navigator === "undefined") return "unknown";
+  const ua = navigator.userAgent || "";
+  if (/Edg\//.test(ua)) return "edge";
+  if (/Chrome\//.test(ua)) return "chrome";
+  if (/Safari\//.test(ua) && !/Chrome\//.test(ua)) return "safari";
+  if (/Firefox\//.test(ua)) return "firefox";
+  return "unknown";
+}
+
+function getReferrerHost() {
+  if (typeof document === "undefined" || !document.referrer) return "";
+
+  try {
+    const url = new URL(document.referrer);
+    return url.hostname === window.location.hostname ? "internal" : url.hostname;
+  } catch {
+    return "";
+  }
+}
+
+function trackStatsEvent(type, metadata = {}, options = {}) {
+  if (typeof window === "undefined") return;
+
+  const params = new URLSearchParams(window.location.search);
+  const payload = {
+    site: "P39.Studio",
+    sessionId: getStatsSessionId(),
+    type,
+    path: `${window.location.pathname}${window.location.search}`,
+    referrer: getReferrerHost(),
+    utmSource: params.get("utm_source") || "",
+    utmMedium: params.get("utm_medium") || "",
+    utmCampaign: params.get("utm_campaign") || "",
+    device: getDeviceType(),
+    browser: getBrowserFamily(),
+    language: navigator.language || "",
+    metadata
+  };
+
+  const body = JSON.stringify(payload);
+
+  if (options.beacon && navigator.sendBeacon) {
+    navigator.sendBeacon("/api/stats/event", new Blob([body], { type: "application/json" }));
+    return;
+  }
+
+  fetch("/api/stats/event", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body,
+    keepalive: Boolean(options.keepalive)
+  }).catch(() => {});
+}
+
 function needsContactHandle(method) {
   return method === "Telegram" || method === "ВК" || method === "VK";
 }
@@ -489,6 +565,9 @@ function TerminalModal({ open, onClose, lang }) {
         body: JSON.stringify({ ...form, contact })
       });
       setStatus(response.ok ? "success" : "local");
+      if (response.ok) {
+        trackStatsEvent("contact_submit_success", { method: form.method });
+      }
     } catch {
       setStatus("local");
     }
@@ -553,7 +632,7 @@ function TerminalModal({ open, onClose, lang }) {
                     <p className="cmd-label cmd-reveal-line" style={{ "--cmd-line-chars": t.method.length }}>{t.method}</p>
                     <div className="cmd-methods">
                       {t.methods.map((method) => (
-                        <button key={method} disabled={step > 3} onClick={() => { if (step > 3) return; setForm({ ...form, method, contact: contactsByMethod[method] || "" }); setStep(3); }} className={`cmd-method ${form.method === method ? "is-selected" : ""}`}>
+                        <button key={method} disabled={step > 3} onClick={() => { if (step > 3) return; trackStatsEvent("contact_method_select", { method }); setForm({ ...form, method, contact: contactsByMethod[method] || "" }); setStep(3); }} className={`cmd-method ${form.method === method ? "is-selected" : ""}`}>
                           {method}
                         </button>
                       ))}
@@ -703,6 +782,65 @@ export default function Home() {
     document.documentElement.dataset.theme = theme;
     document.documentElement.lang = lang;
   }, [theme, lang]);
+
+  useEffect(() => {
+    trackStatsEvent("page_view");
+
+    const seenSections = new Set();
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting || entry.intersectionRatio < 0.35) continue;
+        const section = entry.target.id;
+        if (!section || seenSections.has(section)) continue;
+        seenSections.add(section);
+        trackStatsEvent("section_view", { section });
+      }
+    }, { threshold: [0.35, 0.65] });
+
+    for (const id of ["systems", "works", "contact"]) {
+      const element = document.getElementById(id);
+      if (element) observer.observe(element);
+    }
+
+    const scrollMarks = [25, 50, 75, 100];
+    const sentScrollMarks = new Set();
+    const onScroll = () => {
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      const depth = scrollable > 0 ? Math.round((window.scrollY / scrollable) * 100) : 100;
+      for (const mark of scrollMarks) {
+        if (depth >= mark && !sentScrollMarks.has(mark)) {
+          sentScrollMarks.add(mark);
+          trackStatsEvent("scroll_depth", { depth: mark });
+        }
+      }
+    };
+
+    const startedAt = Date.now();
+    let sentTime = false;
+    const sendTimeOnPage = () => {
+      if (sentTime) return;
+      sentTime = true;
+      const seconds = Math.max(1, Math.round((Date.now() - startedAt) / 1000));
+      trackStatsEvent("time_on_page", { seconds }, { beacon: true, keepalive: true });
+    };
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "hidden") sendTimeOnPage();
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("pagehide", sendTimeOnPage);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    onScroll();
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("pagehide", sendTimeOnPage);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      sendTimeOnPage();
+    };
+  }, []);
 
   useEffect(() => {
     let frame = 0;
@@ -908,7 +1046,7 @@ export default function Home() {
           <motion.div className="flex flex-col items-center text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
             <BrandText as="h1" variant="hero" className="max-w-none text-[clamp(8.4rem,34vw,22.5rem)] font-semibold leading-[0.86] tracking-normal sm:text-[clamp(6.1rem,26vw,22.5rem)]" />
             <HeroIntroText value={t.heroAlt} reserveValue={stableText.heroAlt} {...decodeProps} as="p" className="hero-typewriter mt-8 max-w-none text-[0.8rem] uppercase leading-relaxed tracking-[0.19em] text-[color:var(--dim)] sm:mt-10 sm:text-lg sm:tracking-[0.28em]" />
-            <button onClick={() => openTerminalWithMobileFocus(setModalOpen)} className="hero-cta mt-8 inline-flex items-center justify-center rounded-full text-sm uppercase tracking-[0.18em] sm:mt-10">
+            <button onClick={() => { trackStatsEvent("cta_click", { cta: "hero_create_project" }); trackStatsEvent("contact_open", { source: "hero" }); openTerminalWithMobileFocus(setModalOpen); }} className="hero-cta mt-8 inline-flex items-center justify-center rounded-full text-sm uppercase tracking-[0.18em] sm:mt-10">
               <DecodeText value={heroCtaLabel} reserveValue={heroCtaLabelReserve} {...decodeProps} />
             </button>
           </motion.div>
@@ -1043,7 +1181,7 @@ export default function Home() {
             <DecodeText value={t.terminalTitle} reserveValue={stableText.terminalTitle} {...decodeProps} as="h2" className="text-4xl font-semibold leading-none sm:text-6xl" />
             <DecodeText value={t.contactDescription} reserveValue={stableText.contactDescription} {...decodeProps} as="p" className="mx-auto mt-6 max-w-3xl text-lg leading-relaxed text-[color:var(--muted)]" />
           </div>
-          <button onClick={() => openTerminalWithMobileFocus(setModalOpen)} className="contact-cta inline-flex items-center justify-center rounded-full text-sm uppercase tracking-[0.18em]">
+          <button onClick={() => { trackStatsEvent("cta_click", { cta: "contact_create_project" }); trackStatsEvent("contact_open", { source: "contact" }); openTerminalWithMobileFocus(setModalOpen); }} className="contact-cta inline-flex items-center justify-center rounded-full text-sm uppercase tracking-[0.18em]">
             <DecodeText value={heroCtaLabel} reserveValue={heroCtaLabelReserve} {...decodeProps} />
           </button>
         </div>
