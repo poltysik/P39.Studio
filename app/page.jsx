@@ -657,19 +657,40 @@ function TerminalModal({ open, onClose, lang }) {
     const contact = contactPrefix
       ? `${contactPrefix}${cleanContactValue(form.method, form.contact)}`
       : form.contact;
+    const payload = { ...form, contact };
+    const body = JSON.stringify(payload);
+
+    const sendContactRequest = () => fetch("/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      cache: "no-store",
+      body
+    });
 
     try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, contact })
-      });
-      setStatus(response.ok ? "success" : "local");
+      let response = await sendContactRequest();
+      if (!response.ok) {
+        await new Promise((resolve) => window.setTimeout(resolve, 450));
+        response = await sendContactRequest();
+      }
+
       if (response.ok) {
+        setStatus("success");
         trackStatsEvent("contact_submit_success", { method: form.method });
+        return;
+      }
+
+      const queued = navigator.sendBeacon?.("/api/contact", new Blob([body], { type: "application/json" }));
+      setStatus(queued ? "success" : "local");
+      if (queued) {
+        trackStatsEvent("contact_submit_success", { method: form.method, fallback: "beacon" });
       }
     } catch {
-      setStatus("local");
+      const queued = navigator.sendBeacon?.("/api/contact", new Blob([body], { type: "application/json" }));
+      setStatus(queued ? "success" : "local");
+      if (queued) {
+        trackStatsEvent("contact_submit_success", { method: form.method, fallback: "beacon" });
+      }
     }
   };
 
