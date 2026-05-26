@@ -2442,7 +2442,7 @@ button {
   }
 
   #contact {
-    padding-top: 22rem;
+    padding-top: 5rem;
   }
 
   .work-browser__top {
@@ -2469,6 +2469,10 @@ button {
   .work-browser__viewport {
     height: 30rem;
     min-height: 26rem;
+  }
+
+  .work-browser__viewport iframe {
+    width: 100%;
   }
 
   .infographic-stage::before {

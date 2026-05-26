@@ -13,6 +13,12 @@ function withPreviewStyles(html) {
         scrollbar-width: none;
       }
 
+      html,
+      body {
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+      }
+
       ::-webkit-scrollbar {
         width: 0;
         height: 0;

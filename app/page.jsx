@@ -1337,6 +1337,7 @@ export default function Home() {
                               key={work.id}
                               src={work.previewSrc}
                               title={`${work.title[displayLang]} website preview`}
+                              scrolling="yes"
                               loading={index === 0 ? "eager" : "lazy"}
                               onLoad={() => registerWorkFrameLoad(index)}
                               className={isActive ? "is-active" : ""}
