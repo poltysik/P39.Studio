@@ -2496,6 +2496,7 @@ button {
   }
 
   .work-browser__top {
+    position: relative;
     grid-template-columns: auto minmax(0, 1fr) auto;
     gap: 0.7rem;
   }
@@ -2505,6 +2506,10 @@ button {
   }
 
   .work-browser__mobile-link {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 1;
     display: inline-flex;
     min-height: 2.25rem;
     align-items: center;
@@ -2516,7 +2521,18 @@ button {
     letter-spacing: 0.08em;
     text-decoration: none;
     text-transform: uppercase;
+    transform: translate(-50%, -50%);
     white-space: nowrap;
+  }
+
+  .work-browser__dots,
+  .work-browser__lock {
+    position: relative;
+    z-index: 2;
+  }
+
+  .work-browser__lock {
+    justify-self: end;
   }
 
   .work-browser__link {
@@ -2538,7 +2554,7 @@ button {
   .work-browser__viewport {
     height: 30rem;
     min-height: 26rem;
-    overflow-y: auto;
+    overflow: hidden;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
@@ -2549,11 +2565,12 @@ button {
   }
 
   .work-browser__viewport iframe {
-    position: relative;
+    position: absolute;
+    inset: 0;
     display: block;
-    min-height: 100%;
+    min-height: 0;
     width: 100%;
-    height: var(--frame-scroll-height, 2600px);
+    height: 100%;
   }
 
   .work-browser__viewport iframe:not(.is-active) {
