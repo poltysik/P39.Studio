@@ -1090,14 +1090,12 @@ button {
 }
 
 @media (max-width: 640px) {
-  .cmd-input-shell {
-    min-height: 2.2rem;
-    border-bottom: 1px solid rgba(138, 92, 246, 0.44);
+  .cmd-input-row {
+    align-items: flex-end;
   }
 
-  .cmd-input,
-  .cmd-input-visual {
-    padding-bottom: 0.34rem;
+  .cmd-input-shell {
+    min-height: 2.35rem;
   }
 
   .cmd-submit-symbol {
@@ -1175,6 +1173,22 @@ button {
 
 .cmd-input--highlight-at {
   color: transparent;
+}
+
+@media (max-width: 640px) {
+  .cmd-input,
+  .cmd-input-visual {
+    min-height: 2.35rem;
+    line-height: 1.12;
+    padding: 0.24rem 0 0.42rem;
+  }
+
+  .cmd-input {
+    border-bottom: 1px solid rgba(138, 92, 246, 0.44);
+    border-radius: 0;
+    -webkit-appearance: none;
+    appearance: none;
+  }
 }
 
 .cmd-methods {
