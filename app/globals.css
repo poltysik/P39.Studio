@@ -2500,8 +2500,7 @@ button {
     gap: 0.7rem;
   }
 
-  .work-browser--sites .work-browser__url,
-  .work-browser--sites .work-browser__lock {
+  .work-browser--sites .work-browser__url {
     display: none;
   }
 
@@ -2539,7 +2538,7 @@ button {
   .work-browser__viewport {
     height: 30rem;
     min-height: 26rem;
-    overflow: hidden;
+    overflow-y: auto;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
@@ -2561,50 +2560,8 @@ button {
     display: none;
   }
 
-  .work-browser--sites .work-browser__viewport iframe,
-  .work-browser--sites .work-browser__loading {
-    display: none;
-  }
-
   .mobile-site-preview {
-    position: absolute;
-    inset: 0;
-    z-index: 3;
-    display: block;
-    overflow: hidden;
-    background: #060607;
-    text-decoration: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .mobile-site-preview__image {
-    object-fit: cover;
-    object-position: top center;
-    transform: scale(1.01);
-  }
-
-  .mobile-site-preview__cta {
-    position: absolute;
-    left: 50%;
-    bottom: 1.15rem;
-    z-index: 2;
-    display: inline-flex;
-    min-height: 2.35rem;
-    align-items: center;
-    justify-content: center;
-    gap: 0.35rem;
-    padding: 0 1rem;
-    border: 1px solid rgba(138, 92, 246, 0.46);
-    border-radius: 999px;
-    background: rgba(10, 8, 15, 0.78);
-    color: var(--text);
-    font-size: 0.68rem;
-    font-weight: 620;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    box-shadow: 0 0 24px rgba(138, 92, 246, 0.24);
-    transform: translateX(-50%);
-    backdrop-filter: blur(12px);
+    display: none;
   }
 
   .infographic-stage::before {
