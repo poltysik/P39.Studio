@@ -18,13 +18,14 @@ const copy = {
     servicesTitle: "Core directions",
     servicesSub: "We shape digital systems around the task: from fast product launches to automation, integrations, and internal tools.",
     serviceGroups: [
-      { title: "Web products", items: ["Landing pages", "Online stores", "Telegram web apps", "Telegram bots", "Widgets"] },
+      { title: "Web products", items: ["Landing pages", "Online stores", "Infographics", "Telegram web apps", "Telegram bots", "Widgets"] },
       { title: "Automation", items: ["Content creation", "AI assistants", "Process optimization"] },
       { title: "Custom development", items: ["ERP", "CRM", "AI integration"] }
     ],
     proof: "Identity, interaction, and digital systems share one disciplined visual language.",
     worksEyebrow: "Portfolio",
     worksTitle: "Selected work",
+    worksCategories: ["Sites", "Infographics"],
     worksDescription: "A live project example: structure, interface, visual rhythm, and interaction scenarios inside a finished digital product.",
     workMeta: ["Landing page", "Digital fitness product", "UX / UI"],
     workOpenSite: "Open site",
@@ -56,13 +57,14 @@ const copy = {
     servicesTitle: "Основные направления",
     servicesSub: "Собираем цифровые решения вокруг задачи: от быстрых запусков и интерфейсов до автоматизации, интеграций и внутренних инструментов.",
     serviceGroups: [
-      { title: "Web продукты", items: ["Лендинги", "Интернет-магазины", "Telegram web apps", "Telegram боты", "Виджеты"] },
+      { title: "Web продукты", items: ["Лендинги", "Интернет-магазины", "Инфографика", "Telegram web apps", "Telegram боты", "Виджеты"] },
       { title: "Автоматизация", items: ["Создание контента", "ИИ-помощники", "Оптимизация процессов"] },
       { title: "Кастомная разработка", items: ["ERP", "CRM", "Интеграция ИИ"] }
     ],
     proof: "Айдентика, взаимодействие и цифровые системы говорят на одном точном визуальном языке.",
     worksEyebrow: "Портфолио",
     worksTitle: "Примеры работ",
+    worksCategories: ["Сайты", "Инфографика"],
     worksDescription: "Показываем готовый цифровой продукт: структуру, интерфейс, визуальный ритм и сценарии взаимодействия.",
     workMeta: ["Лендинг", "Цифровой фитнес-продукт", "UX / UI"],
     workOpenSite: "Открыть сайт",
@@ -89,7 +91,7 @@ const copy = {
 const decodeGlyphs = "/<>[]{}01_";
 
 function longestText(...values) {
-  return values.reduce((longest, value) => (value.length > longest.length ? value : longest), "");
+  return values.reduce((longest, value = "") => (value.length > longest.length ? value : longest), "");
 }
 
 const stableText = {
@@ -105,6 +107,8 @@ const stableText = {
   proof: longestText(copy.ru.proof, copy.en.proof),
   worksEyebrow: longestText(copy.ru.worksEyebrow, copy.en.worksEyebrow),
   worksTitle: longestText(copy.ru.worksTitle, copy.en.worksTitle),
+  worksCategory: longestText(...copy.ru.worksCategories, ...copy.en.worksCategories),
+  worksCategories: copy.ru.worksCategories.map((item, index) => longestText(item, copy.en.worksCategories[index])),
   worksDescription: longestText(copy.ru.worksDescription, copy.en.worksDescription),
   workMeta: copy.ru.workMeta.map((item, index) => longestText(item, copy.en.workMeta[index])),
   workOpenSite: longestText(copy.ru.workOpenSite, copy.en.workOpenSite),
@@ -192,8 +196,99 @@ const portfolioWorks = [
   }
 ];
 
-const portfolioTagReserve = Array.from({ length: 3 }, (_, tagIndex) =>
-  longestText(...portfolioWorks.flatMap((work) => [work.tags.ru[tagIndex], work.tags.en[tagIndex]]))
+const infographicWorks = [
+  {
+    id: "magnesium-glycinate",
+    urlLabel: {
+      ru: "маркетплейс / бады",
+      en: "marketplace card / supplements"
+    },
+    imageSrc: "/infographics/magnesium-glycinate.png",
+    title: {
+      ru: "Magnesium Glycinate",
+      en: "Magnesium Glycinate"
+    },
+    tags: {
+      ru: ["WB / Ozon", "БАДы"],
+      en: ["WB / Ozon", "Supplements"]
+    }
+  },
+  {
+    id: "necklace",
+    urlLabel: {
+      ru: "маркетплейс / украшения",
+      en: "marketplace card / jewelry"
+    },
+    imageSrc: "/infographics/necklace.png",
+    title: {
+      ru: "Подвеска с камнем",
+      en: "Stone Necklace"
+    },
+    tags: {
+      ru: ["WB / Ozon", "Украшения"],
+      en: ["WB / Ozon", "Jewelry"]
+    }
+  },
+  {
+    id: "soft-bunny",
+    urlLabel: {
+      ru: "маркетплейс / игрушки",
+      en: "marketplace card / toys"
+    },
+    imageSrc: "/infographics/soft-bunny.png",
+    title: {
+      ru: "Мягкий зайка",
+      en: "Soft Bunny"
+    },
+    tags: {
+      ru: ["WB / Ozon", "Игрушки"],
+      en: ["WB / Ozon", "Toys"]
+    }
+  },
+  {
+    id: "pet-carrier",
+    urlLabel: {
+      ru: "маркетплейс / питомцы",
+      en: "marketplace card / pets"
+    },
+    imageSrc: "/infographics/pet-carrier.png",
+    title: {
+      ru: "Переноска для собак",
+      en: "Dog Carrier"
+    },
+    tags: {
+      ru: ["WB / Ozon", "Для питомцев"],
+      en: ["WB / Ozon", "Pet products"]
+    }
+  },
+  {
+    id: "sport-set",
+    urlLabel: {
+      ru: "маркетплейс / спорт",
+      en: "marketplace card / sport"
+    },
+    imageSrc: "/infographics/sport-set.png",
+    title: {
+      ru: "Спортивный комплект",
+      en: "Sport Set"
+    },
+    tags: {
+      ru: ["WB / Ozon", "Одежда"],
+      en: ["WB / Ozon", "Apparel"]
+    }
+  }
+];
+
+const workTagReserve = Array.from({ length: 3 }, (_, tagIndex) =>
+  longestText(
+    ...portfolioWorks.flatMap((work) => [work.tags.ru[tagIndex], work.tags.en[tagIndex]]),
+    ...infographicWorks.flatMap((work) => [work.tags.ru[tagIndex], work.tags.en[tagIndex]])
+  )
+);
+
+const workUrlLabelReserve = longestText(
+  ...portfolioWorks.map((work) => work.urlLabel),
+  ...infographicWorks.flatMap((work) => [work.urlLabel.ru, work.urlLabel.en])
 );
 
 function scrambleText(value, tick) {
@@ -749,6 +844,9 @@ export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
   const [workPreviewUnlocked, setWorkPreviewUnlocked] = useState(true);
   const [activeWorkIndex, setActiveWorkIndex] = useState(0);
+  const [activeInfographicIndex, setActiveInfographicIndex] = useState(0);
+  const [activeWorkCategoryIndex, setActiveWorkCategoryIndex] = useState(0);
+  const [workCategoryMotionKey, setWorkCategoryMotionKey] = useState(0);
   const [workFramesEnabled, setWorkFramesEnabled] = useState([0]);
   const [loadedWorkFrames, setLoadedWorkFrames] = useState({});
   const [navMotion, setNavMotion] = useState({ drift: 0, panelShift: 0 });
@@ -898,12 +996,24 @@ export default function Home() {
 
   const serviceGroups = useMemo(() => t.serviceGroups, [t.serviceGroups]);
   const controlsLocked = translation.active || themeVeil.active;
+  const activeWorkCategory = t.worksCategories[activeWorkCategoryIndex];
+  const activeWorkCategorySlug = activeWorkCategoryIndex === 0 ? "sites" : "infographics";
+  const isInfographicsCategory = activeWorkCategorySlug === "infographics";
+  const activeWorkItems = isInfographicsCategory ? infographicWorks : portfolioWorks;
+  const activeItemIndex = isInfographicsCategory ? activeInfographicIndex : activeWorkIndex;
   const activeWork = portfolioWorks[activeWorkIndex];
-  const activeWorkTags = activeWork.tags[displayLang];
-  const activeWorkTitle = activeWork.title[displayLang];
+  const activeInfographic = infographicWorks[activeInfographicIndex];
+  const activeShowcaseItem = isInfographicsCategory ? activeInfographic : activeWork;
+  const activeWorkTags = activeShowcaseItem.tags[displayLang];
+  const activeWorkUrlLabel = isInfographicsCategory ? activeShowcaseItem.urlLabel[displayLang] : activeShowcaseItem.urlLabel;
   const enabledWorkFrames = portfolioWorks.filter((_, index) => workFramesEnabled.includes(index));
 
   const switchWork = (direction) => {
+    if (isInfographicsCategory) {
+      setActiveInfographicIndex((current) => (current + direction + infographicWorks.length) % infographicWorks.length);
+      return;
+    }
+
     setActiveWorkIndex((current) => {
       const next = (current + direction + portfolioWorks.length) % portfolioWorks.length;
       setWorkFramesEnabled((enabled) => (enabled.includes(next) ? enabled : [...enabled, next]));
@@ -912,8 +1022,21 @@ export default function Home() {
   };
 
   const selectWork = (index) => {
+    if (isInfographicsCategory) {
+      setActiveInfographicIndex(index);
+      return;
+    }
+
     setWorkFramesEnabled((enabled) => (enabled.includes(index) ? enabled : [...enabled, index]));
     setActiveWorkIndex(index);
+  };
+
+  const switchWorkCategory = (direction) => {
+    setWorkCategoryMotionKey((current) => current + 1);
+    setActiveWorkCategoryIndex((current) => {
+      const count = t.worksCategories.length;
+      return (current + direction + count) % count;
+    });
   };
 
   const registerWorkFrameLoad = (index) => {
@@ -1090,77 +1213,145 @@ export default function Home() {
             <div className="works-showcase__copy">
               <DecodeText value={t.worksEyebrow} reserveValue={stableText.worksEyebrow} {...decodeProps} as="p" className="text-center text-sm uppercase tracking-[0.34em] text-accent" />
               <DecodeText value={t.worksTitle} reserveValue={stableText.worksTitle} {...decodeProps} as="h2" className="mt-5 text-center text-4xl font-semibold leading-tight sm:text-6xl" />
+              <div className={`works-category-switch works-category-switch--${activeWorkCategorySlug}`} aria-label={displayLang === "ru" ? "Категория портфолио" : "Portfolio category"}>
+                <span className="works-category-switch__glow" aria-hidden="true" />
+                <span key={`${activeWorkCategorySlug}-${workCategoryMotionKey}`} className="works-category-switch__burst" aria-hidden="true">
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                </span>
+                <button type="button" onClick={() => switchWorkCategory(-1)} className="works-category-switch__arrow" aria-label={displayLang === "ru" ? "Предыдущая категория" : "Previous category"}>
+                  <ChevronLeft size={16} />
+                </button>
+                <DecodeText key={`${activeWorkCategorySlug}-${displayLang}-${workCategoryMotionKey}`} value={activeWorkCategory} reserveValue={stableText.worksCategory} {...decodeProps} as="span" className="works-category-switch__label" />
+                <button type="button" onClick={() => switchWorkCategory(1)} className="works-category-switch__arrow" aria-label={displayLang === "ru" ? "Следующая категория" : "Next category"}>
+                  <ChevronRight size={16} />
+                </button>
+              </div>
               <DecodeText value={t.worksDescription} reserveValue={stableText.worksDescription} {...decodeProps} as="p" className="mt-6 max-w-xl text-center text-lg leading-relaxed text-[color:var(--muted)]" />
               <div className="work-meta justify-center">
                 {activeWorkTags.map((item, index) => (
-                  <DecodeText key={`${activeWork.id}-${item}`} value={item} reserveValue={portfolioTagReserve[index]} {...decodeProps} as="span" />
+                  <DecodeText key={`${activeShowcaseItem.id}-${item}`} value={item} reserveValue={workTagReserve[index]} {...decodeProps} as="span" />
                 ))}
               </div>
             </div>
 
-            <motion.div className="work-browser" initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}>
+            <motion.div className={`work-browser work-browser--${activeWorkCategorySlug} work-browser--pulse-${workCategoryMotionKey % 2 === 0 ? "a" : "b"}`} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}>
               <div className="work-browser__top">
                 <div className="work-browser__dots" aria-label="Индикаторы примеров работ">
-                  {portfolioWorks.map((work, index) => (
+                  {activeWorkItems.map((work, index) => (
                     <button
                       key={`${work.id}-top-dot`}
                       type="button"
                       onClick={() => selectWork(index)}
-                      className={index === activeWorkIndex ? "is-active" : ""}
+                      className={index === activeItemIndex ? "is-active" : ""}
                       aria-label={`Открыть ${work.title.ru}`}
-                      aria-pressed={index === activeWorkIndex}
+                      aria-pressed={index === activeItemIndex}
                     />
                   ))}
                 </div>
-                <span className="work-browser__url">{activeWork.urlLabel}</span>
-                <button
-                  type="button"
-                  className={`work-browser__lock ${workPreviewUnlocked ? "is-unlocked" : "is-locked"}`}
-                  onPointerDown={(event) => {
-                    if (event.pointerType === "touch") {
-                      event.preventDefault();
-                      workPreviewTouchHandledRef.current = true;
-                      setWorkPreviewUnlocked((current) => !current);
-                    }
-                  }}
-                  onClick={() => {
-                    if (workPreviewTouchHandledRef.current) {
-                      workPreviewTouchHandledRef.current = false;
-                      return;
-                    }
-                    setWorkPreviewUnlocked((current) => !current);
-                  }}
-                  aria-label={workPreviewUnlocked ? "Disable preview interaction" : "Enable preview interaction"}
-                  aria-pressed={workPreviewUnlocked}
-                >
-                  <MousePointer2 size={14} />
-                </button>
-                <a href={activeWork.href} target="_blank" rel="noreferrer" className="work-browser__link">
-                  <DecodeText value={t.workOpenSite} reserveValue={stableText.workOpenSite} {...decodeProps} />
-                  <ArrowRight size={14} />
-                </a>
-              </div>
-              <div className={`work-browser__viewport ${workPreviewUnlocked ? "is-unlocked" : "is-locked"}`}>
-                {enabledWorkFrames.map((work) => {
-                  const index = portfolioWorks.findIndex((item) => item.id === work.id);
-                  const isActive = index === activeWorkIndex;
-
-                  return (
-                    <iframe
-                      key={work.id}
-                      src={work.previewSrc}
-                      title={`${work.title[displayLang]} website preview`}
-                      loading={index === 0 ? "eager" : "lazy"}
-                      onLoad={() => registerWorkFrameLoad(index)}
-                      className={isActive ? "is-active" : ""}
-                    />
-                  );
-                })}
-                {!loadedWorkFrames[activeWorkIndex] && (
-                  <div className="work-browser__loading" aria-hidden="true">
-                    <span className="work-browser__loading-logo">P39</span>
-                  </div>
+                <DecodeText value={activeWorkUrlLabel} reserveValue={workUrlLabelReserve} {...decodeProps} as="span" className="work-browser__url" />
+                {!isInfographicsCategory && (
+                  <>
+                    <button
+                      type="button"
+                      className={`work-browser__lock ${workPreviewUnlocked ? "is-unlocked" : "is-locked"}`}
+                      onPointerDown={(event) => {
+                        if (event.pointerType === "touch") {
+                          event.preventDefault();
+                          workPreviewTouchHandledRef.current = true;
+                          setWorkPreviewUnlocked((current) => !current);
+                        }
+                      }}
+                      onClick={() => {
+                        if (workPreviewTouchHandledRef.current) {
+                          workPreviewTouchHandledRef.current = false;
+                          return;
+                        }
+                        setWorkPreviewUnlocked((current) => !current);
+                      }}
+                      aria-label={workPreviewUnlocked ? "Disable preview interaction" : "Enable preview interaction"}
+                      aria-pressed={workPreviewUnlocked}
+                    >
+                      <MousePointer2 size={14} />
+                    </button>
+                    <a href={activeWork.href} target="_blank" rel="noreferrer" className="work-browser__link">
+                      <DecodeText value={t.workOpenSite} reserveValue={stableText.workOpenSite} {...decodeProps} />
+                      <ArrowRight size={14} />
+                    </a>
+                  </>
                 )}
+              </div>
+              <div className={`work-browser__viewport ${isInfographicsCategory || workPreviewUnlocked ? "is-unlocked" : "is-locked"}`}>
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={activeWorkCategorySlug}
+                    className="work-browser__category-content"
+                    initial={{ opacity: 0, scale: 0.985, filter: "blur(10px)" }}
+                    animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, scale: 0.992, filter: "blur(8px)" }}
+                    transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    {isInfographicsCategory ? (
+                      <div className="infographic-stage" aria-label={displayLang === "ru" ? "Примеры инфографики" : "Infographic examples"}>
+                        {infographicWorks.map((work, index) => {
+                          const offset = index - activeInfographicIndex;
+                          const wrappedOffset = offset > infographicWorks.length / 2
+                            ? offset - infographicWorks.length
+                            : offset < -infographicWorks.length / 2
+                              ? offset + infographicWorks.length
+                              : offset;
+                          const isActive = index === activeInfographicIndex;
+                          const isVisible = Math.abs(wrappedOffset) <= 1;
+
+                          return (
+                            <button
+                              key={work.id}
+                              type="button"
+                              onClick={() => setActiveInfographicIndex(index)}
+                              className={`infographic-card ${isActive ? "is-active" : ""} ${isVisible ? "is-visible" : ""}`}
+                              style={{
+                                "--card-offset": wrappedOffset,
+                                "--card-depth": Math.abs(wrappedOffset),
+                                "--card-rotate": `${wrappedOffset * 4}deg`
+                              }}
+                              aria-label={`Открыть ${work.title.ru}`}
+                              aria-pressed={isActive}
+                            >
+                              <Image src={work.imageSrc} alt={work.title[displayLang]} fill sizes="(max-width: 720px) 72vw, 29rem" priority={index === 0} />
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <>
+                        {enabledWorkFrames.map((work) => {
+                          const index = portfolioWorks.findIndex((item) => item.id === work.id);
+                          const isActive = index === activeWorkIndex;
+
+                          return (
+                            <iframe
+                              key={work.id}
+                              src={work.previewSrc}
+                              title={`${work.title[displayLang]} website preview`}
+                              loading={index === 0 ? "eager" : "lazy"}
+                              onLoad={() => registerWorkFrameLoad(index)}
+                              className={isActive ? "is-active" : ""}
+                            />
+                          );
+                        })}
+                        {!loadedWorkFrames[activeWorkIndex] && (
+                          <div className="work-browser__loading" aria-hidden="true">
+                            <span className="work-browser__loading-logo">P39</span>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </motion.div>
+                </AnimatePresence>
               </div>
               <div className="work-browser__bottom-nav">
                 <button type="button" onClick={() => switchWork(-1)} className="work-browser__nav-button" aria-label="Предыдущий сайт">
