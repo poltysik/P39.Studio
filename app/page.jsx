@@ -129,6 +129,7 @@ const portfolioWorks = [
     urlLabel: "recomposition-official.ru",
     href: "https://recomposition-official.ru/",
     previewSrc: "/api/recomposition-frame",
+    mobilePreviewSrc: "/recomposition-official-preview.png",
     title: {
       ru: "Recomposition",
       en: "Recomposition"
@@ -143,6 +144,7 @@ const portfolioWorks = [
     urlLabel: "apex-ege.vercel.app",
     href: "https://apex-ege.vercel.app/",
     previewSrc: "https://apex-ege.vercel.app/",
+    mobilePreviewSrc: "/site-previews/apex-ege.png",
     title: {
       ru: "Apex EGE",
       en: "Apex EGE"
@@ -157,6 +159,7 @@ const portfolioWorks = [
     urlLabel: "atelier-build-studio-site.vercel.app",
     href: "https://atelier-build-studio-site.vercel.app/",
     previewSrc: "https://atelier-build-studio-site.vercel.app/",
+    mobilePreviewSrc: "/site-previews/atelier-build.png",
     title: {
       ru: "Atelier Build",
       en: "Atelier Build"
@@ -171,6 +174,7 @@ const portfolioWorks = [
     urlLabel: "atelier-nordovest.vercel.app",
     href: "https://atelier-nordovest.vercel.app/",
     previewSrc: "https://atelier-nordovest.vercel.app/",
+    mobilePreviewSrc: "/site-previews/atelier-nordovest.png",
     title: {
       ru: "Atelier Nordovest",
       en: "Atelier Nordovest"
@@ -185,6 +189,7 @@ const portfolioWorks = [
     urlLabel: "terra-forma-chi.vercel.app",
     href: "https://terra-forma-chi.vercel.app/",
     previewSrc: "https://terra-forma-chi.vercel.app/",
+    mobilePreviewSrc: "/site-previews/terra-forma.png",
     title: {
       ru: "Terra Forma",
       en: "Terra Forma"
@@ -1273,6 +1278,10 @@ export default function Home() {
                 <DecodeText value={activeWorkUrlLabel} reserveValue={workUrlLabelReserve} {...decodeProps} as="span" className="work-browser__url" />
                 {!isInfographicsCategory && (
                   <>
+                    <a href={activeWork.href} target="_blank" rel="noreferrer" className="work-browser__mobile-link">
+                      <DecodeText value={t.workOpenSite} reserveValue={stableText.workOpenSite} {...decodeProps} />
+                      <ArrowRight size={14} />
+                    </a>
                     <button
                       type="button"
                       className={`work-browser__lock ${workPreviewUnlocked ? "is-unlocked" : "is-locked"}`}
@@ -1367,6 +1376,13 @@ export default function Home() {
                             <span className="work-browser__loading-logo">P39</span>
                           </div>
                         )}
+                        <a href={activeWork.href} target="_blank" rel="noreferrer" className="mobile-site-preview" aria-label={`${t.workOpenSite}: ${activeWork.title[displayLang]}`}>
+                          <Image src={activeWork.mobilePreviewSrc} alt={`${activeWork.title[displayLang]} mobile preview`} fill sizes="(max-width: 720px) 100vw, 0px" className="mobile-site-preview__image" />
+                          <span className="mobile-site-preview__cta">
+                            <DecodeText value={t.workOpenSite} reserveValue={stableText.workOpenSite} {...decodeProps} />
+                            <ArrowRight size={14} />
+                          </span>
+                        </a>
                       </>
                     )}
                   </motion.div>
