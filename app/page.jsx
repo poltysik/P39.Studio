@@ -244,7 +244,7 @@ const portfolioWorks = [
   }
 ];
 
-const infographicWorks = [
+const legacyInfographicWorks = [
   {
     id: "magnesium-glycinate",
     urlLabel: {
@@ -326,6 +326,40 @@ const infographicWorks = [
     }
   }
 ];
+
+const infographicTopics = [
+  { ru: "Массажный пистолет", en: "Massage gun" },
+  { ru: "LED ночник", en: "LED night light" },
+  { ru: "Автопылесос", en: "Car vacuum" },
+  { ru: "Умные часы", en: "Smart watch" },
+  { ru: "Термобутылка", en: "Thermo bottle" },
+  { ru: "Миска для животных", en: "Pet bowl" },
+  { ru: "Органайзеры для дома", en: "Home organizers" },
+  { ru: "Крем для лица", en: "Face cream" },
+  { ru: "Чехол iPhone", en: "iPhone case" },
+  { ru: "Спортивное питание", en: "Sports nutrition" }
+];
+
+const infographicWorks = infographicTopics.map((topic, index) => {
+  const number = String(index + 1).padStart(2, "0");
+
+  return {
+    id: `infographic-${number}`,
+    urlLabel: {
+      ru: "маркетплейс / инфографика",
+      en: "marketplace card / infographic"
+    },
+    imageSrc: `/infographics/infographic-${number}.png`,
+    title: {
+      ru: topic.ru,
+      en: topic.en
+    },
+    tags: {
+      ru: ["WB / Ozon", topic.ru],
+      en: ["WB / Ozon", topic.en]
+    }
+  };
+});
 
 const workTagReserve = Array.from({ length: 3 }, (_, tagIndex) =>
   longestText(
@@ -917,6 +951,7 @@ export default function Home() {
   const [activeWorkCategoryIndex, setActiveWorkCategoryIndex] = useState(0);
   const [workCategoryMotionKey, setWorkCategoryMotionKey] = useState(0);
   const [workFramesEnabled, setWorkFramesEnabled] = useState([]);
+  const [workFramesWarmupStarted, setWorkFramesWarmupStarted] = useState(false);
   const [loadedWorkFrames, setLoadedWorkFrames] = useState({});
   const [workFrameHeights, setWorkFrameHeights] = useState({});
   const [navMotion, setNavMotion] = useState({ drift: 0, panelShift: 0 });
@@ -1067,17 +1102,37 @@ export default function Home() {
 
   useEffect(() => {
     const worksSection = worksSectionRef.current;
-    if (!worksSection || workFramesEnabled.length > 0) return;
+    if (!worksSection || workFramesWarmupStarted) return;
 
     const observer = new IntersectionObserver((entries) => {
       if (!entries.some((entry) => entry.isIntersecting)) return;
-      setWorkFramesEnabled((enabled) => (enabled.length > 0 ? enabled : [activeWorkIndex]));
+      setWorkFramesWarmupStarted(true);
+      setWorkFramesEnabled((enabled) => (enabled.includes(activeWorkIndex) ? enabled : [...enabled, activeWorkIndex]));
       observer.disconnect();
     }, { rootMargin: "360px 0px", threshold: 0.01 });
 
     observer.observe(worksSection);
     return () => observer.disconnect();
-  }, [activeWorkIndex, workFramesEnabled.length]);
+  }, [activeWorkIndex, workFramesWarmupStarted]);
+
+  useEffect(() => {
+    if (!workFramesWarmupStarted) return;
+
+    const orderedIndexes = [
+      activeWorkIndex,
+      (activeWorkIndex + 1) % portfolioWorks.length,
+      (activeWorkIndex - 1 + portfolioWorks.length) % portfolioWorks.length,
+      ...portfolioWorks.map((_, index) => index)
+    ].filter((index, position, list) => list.indexOf(index) === position);
+
+    const timers = orderedIndexes.map((index, position) => (
+      window.setTimeout(() => {
+        setWorkFramesEnabled((enabled) => (enabled.includes(index) ? enabled : [...enabled, index]));
+      }, position * 450)
+    ));
+
+    return () => timers.forEach((timer) => window.clearTimeout(timer));
+  }, [activeWorkIndex, workFramesWarmupStarted]);
 
   const serviceGroups = useMemo(() => t.serviceGroups, [t.serviceGroups]);
   const controlsLocked = translation.active || themeVeil.active;
@@ -1142,33 +1197,7 @@ export default function Home() {
       // Cross-origin previews keep the default mobile frame height.
     }
 
-    if (index !== 0) return;
-
-    window.setTimeout(() => {
-      setWorkFramesEnabled((enabled) => {
-        const nextIndex = enabled.length;
-        if (nextIndex >= portfolioWorks.length) return enabled;
-        if (enabled.includes(nextIndex)) return enabled;
-        return [...enabled, nextIndex];
-      });
-    }, 500);
   };
-
-  useEffect(() => {
-    if (!loadedWorkFrames[0]) return;
-    if (workFramesEnabled.length >= portfolioWorks.length) return;
-
-    const timer = window.setTimeout(() => {
-      setWorkFramesEnabled((enabled) => {
-        const nextIndex = enabled.length;
-        if (nextIndex >= portfolioWorks.length) return enabled;
-        if (enabled.includes(nextIndex)) return enabled;
-        return [...enabled, nextIndex];
-      });
-    }, 950);
-
-    return () => window.clearTimeout(timer);
-  }, [loadedWorkFrames, workFramesEnabled.length]);
 
   const switchLanguage = () => {
     if (controlsLocked) return;
@@ -1447,7 +1476,7 @@ export default function Home() {
                               src={work.previewSrc}
                               title={`${work.title[displayLang]} website preview`}
                               scrolling="yes"
-                              loading="lazy"
+                              loading="eager"
                               onLoad={(event) => registerWorkFrameLoad(index, event.currentTarget)}
                               className={isActive ? "is-active" : ""}
                               style={{ "--frame-scroll-height": `${workFrameHeights[index] || 12000}px` }}

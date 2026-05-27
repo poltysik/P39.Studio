@@ -1751,18 +1751,6 @@ button {
   inset: 0;
 }
 
-.work-browser__category-content::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  top: 0;
-  z-index: 4;
-  width: 3px;
-  background: #050506;
-  pointer-events: none;
-}
-
 .work-browser__viewport::before {
   content: "";
   position: absolute;
