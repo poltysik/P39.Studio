@@ -183,6 +183,21 @@ const portfolioWorks = [
     }
   },
   {
+    id: "cityoptic",
+    urlLabel: "cityoptic.vercel.app",
+    href: "https://cityoptic.vercel.app/",
+    previewSrc: "https://cityoptic.vercel.app/",
+    mobilePreviewSrc: "/site-previews/cityoptic.png",
+    title: {
+      ru: "City Optic",
+      en: "City Optic"
+    },
+    tags: {
+      ru: ["Оптика", "Проверка зрения", "Лендинг"],
+      en: ["Optics", "Eye exam", "Landing page"]
+    }
+  },
+  {
     id: "apex-ege",
     urlLabel: "apex-ege.vercel.app",
     href: "https://apex-ege.vercel.app/",
