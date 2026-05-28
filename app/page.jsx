@@ -388,15 +388,6 @@ const workUrlLabelReserve = longestText(
   ...infographicWorks.flatMap((work) => [work.urlLabel.ru, work.urlLabel.en])
 );
 
-const mobileWorkFrameHeights = {
-  recomposition: 9000,
-  cityoptic: 7600,
-  "apex-ege": 8600,
-  "atelier-build": 7600,
-  "atelier-nordovest": 17600,
-  "terra-forma": 10400
-};
-
 function scrambleText(value, tick) {
   return value
     .split("")
@@ -1535,12 +1526,11 @@ export default function Home() {
                     ) : isMobileFrameMode ? (
                       <iframe
                         key={`mobile-${activeWork.id}`}
-                        src={activeWork.previewSrc}
+                        src={`/api/work-preview/${activeWork.id}`}
                         title={`${activeWork.title[displayLang]} website preview`}
-                        scrolling="no"
+                        scrolling="yes"
                         loading="eager"
                         className="mobile-work-frame is-active"
-                        style={{ "--frame-scroll-height": `${mobileWorkFrameHeights[activeWork.id] || 12000}px` }}
                       />
                     ) : (
                       <>
