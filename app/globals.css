@@ -2557,10 +2557,16 @@ button {
   .work-browser__viewport {
     height: 30rem;
     min-height: 26rem;
-    overflow: hidden;
+    overflow: auto;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    touch-action: pan-y;
+  }
+
+  .work-browser__viewport::-webkit-scrollbar {
+    width: 0;
+    height: 0;
   }
 
   .work-browser__viewport::before,
@@ -2587,6 +2593,12 @@ button {
     transform: translateZ(0);
     visibility: visible;
     -webkit-overflow-scrolling: touch;
+  }
+
+  .work-browser__viewport iframe.mobile-work-frame {
+    height: var(--frame-scroll-height, 12000px);
+    min-height: var(--frame-scroll-height, 12000px);
+    pointer-events: none;
   }
 
   .work-browser__viewport .work-browser__loading {

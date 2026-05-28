@@ -388,6 +388,15 @@ const workUrlLabelReserve = longestText(
   ...infographicWorks.flatMap((work) => [work.urlLabel.ru, work.urlLabel.en])
 );
 
+const mobileWorkFrameHeights = {
+  recomposition: 9000,
+  cityoptic: 7600,
+  "apex-ege": 8600,
+  "atelier-build": 7600,
+  "atelier-nordovest": 17600,
+  "terra-forma": 10400
+};
+
 function scrambleText(value, tick) {
   return value
     .split("")
@@ -974,6 +983,7 @@ export default function Home() {
   const [mobileNavCollapsed, setMobileNavCollapsed] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const worksSectionRef = useRef(null);
+  const workViewportRef = useRef(null);
   const workPreviewTouchHandledRef = useRef(false);
   const infographicSwipeStartRef = useRef(null);
   const displayLang = translation.active ? translation.target : lang;
@@ -1174,6 +1184,10 @@ export default function Home() {
   const enabledWorkFrames = isMobileFrameMode
     ? [activeWork]
     : portfolioWorks.filter((_, index) => workFramesEnabled.includes(index));
+
+  useEffect(() => {
+    workViewportRef.current?.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [activeWorkIndex, activeWorkCategoryIndex]);
 
   const switchWork = (direction) => {
     if (isInfographicsCategory) {
@@ -1469,7 +1483,7 @@ export default function Home() {
                   </>
                 )}
               </div>
-              <div className={`work-browser__viewport ${isInfographicsCategory || workPreviewUnlocked ? "is-unlocked" : "is-locked"}`}>
+              <div ref={workViewportRef} className={`work-browser__viewport ${isInfographicsCategory || workPreviewUnlocked ? "is-unlocked" : "is-locked"}`}>
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div
                     key={activeWorkCategorySlug}
@@ -1523,9 +1537,10 @@ export default function Home() {
                         key={`mobile-${activeWork.id}`}
                         src={activeWork.previewSrc}
                         title={`${activeWork.title[displayLang]} website preview`}
-                        scrolling="yes"
+                        scrolling="no"
                         loading="eager"
                         className="mobile-work-frame is-active"
+                        style={{ "--frame-scroll-height": `${mobileWorkFrameHeights[activeWork.id] || 12000}px` }}
                       />
                     ) : (
                       <>
