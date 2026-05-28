@@ -968,8 +968,6 @@ export default function Home() {
   const [isMobileFrameMode, setIsMobileFrameMode] = useState(false);
   const [workFramesEnabled, setWorkFramesEnabled] = useState([]);
   const [workFramesWarmupStarted, setWorkFramesWarmupStarted] = useState(false);
-  const [loadedWorkFrames, setLoadedWorkFrames] = useState({});
-  const [workFrameLoaderFallbacks, setWorkFrameLoaderFallbacks] = useState({});
   const [workFrameHeights, setWorkFrameHeights] = useState({});
   const [navMotion, setNavMotion] = useState({ drift: 0, panelShift: 0 });
   const [navReady, setNavReady] = useState(false);
@@ -1177,16 +1175,6 @@ export default function Home() {
     ? [activeWork]
     : portfolioWorks.filter((_, index) => workFramesEnabled.includes(index));
 
-  useEffect(() => {
-    if (isInfographicsCategory || loadedWorkFrames[activeWorkIndex]) return;
-
-    const timer = window.setTimeout(() => {
-      setWorkFrameLoaderFallbacks((current) => ({ ...current, [activeWorkIndex]: true }));
-    }, 3200);
-
-    return () => window.clearTimeout(timer);
-  }, [activeWorkIndex, isInfographicsCategory, loadedWorkFrames]);
-
   const switchWork = (direction) => {
     if (isInfographicsCategory) {
       setActiveInfographicIndex((current) => (current + direction + infographicWorks.length) % infographicWorks.length);
@@ -1239,7 +1227,6 @@ export default function Home() {
   };
 
   const registerWorkFrameLoad = (index, frame) => {
-    setLoadedWorkFrames((current) => ({ ...current, [index]: true }));
     try {
       const doc = frame?.contentDocument;
       const height = Math.max(
@@ -1531,6 +1518,15 @@ export default function Home() {
                           );
                         })}
                       </div>
+                    ) : isMobileFrameMode ? (
+                      <iframe
+                        key={`mobile-${activeWork.id}`}
+                        src={activeWork.previewSrc}
+                        title={`${activeWork.title[displayLang]} website preview`}
+                        scrolling="yes"
+                        loading="eager"
+                        className="mobile-work-frame is-active"
+                      />
                     ) : (
                       <>
                         {enabledWorkFrames.map((work) => {
@@ -1550,11 +1546,6 @@ export default function Home() {
                             />
                           );
                         })}
-                        {!isMobileFrameMode && !loadedWorkFrames[activeWorkIndex] && !workFrameLoaderFallbacks[activeWorkIndex] && (
-                          <div className="work-browser__loading" aria-hidden="true">
-                            <span className="work-browser__loading-logo">P39</span>
-                          </div>
-                        )}
                       </>
                     )}
                   </motion.div>
