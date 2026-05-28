@@ -1550,7 +1550,7 @@ export default function Home() {
                             />
                           );
                         })}
-                        {!loadedWorkFrames[activeWorkIndex] && !workFrameLoaderFallbacks[activeWorkIndex] && (
+                        {!isMobileFrameMode && !loadedWorkFrames[activeWorkIndex] && !workFrameLoaderFallbacks[activeWorkIndex] && (
                           <div className="work-browser__loading" aria-hidden="true">
                             <span className="work-browser__loading-logo">P39</span>
                           </div>
