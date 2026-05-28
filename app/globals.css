@@ -1794,6 +1794,15 @@ button {
   display: none;
 }
 
+.mobile-work-frame-shell {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: block;
+  overflow: hidden;
+  background: #050506;
+}
+
 @keyframes work-category-scan-a {
   0% {
     opacity: 0;
@@ -2572,6 +2581,16 @@ button {
     opacity: 1 !important;
     transform: none !important;
     filter: none !important;
+  }
+
+  .mobile-work-frame-shell {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    overflow: hidden;
+    background: #ffffff;
+    transform: none;
+    filter: none;
   }
 
   .work-browser__viewport iframe {

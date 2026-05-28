@@ -1524,14 +1524,16 @@ export default function Home() {
                         })}
                       </div>
                     ) : isMobileFrameMode ? (
-                      <iframe
-                        key={`mobile-${activeWork.id}`}
-                        src={`/api/work-preview/${activeWork.id}`}
-                        title={`${activeWork.title[displayLang]} website preview`}
-                        scrolling="yes"
-                        loading="eager"
-                        className="mobile-work-frame is-active"
-                      />
+                      <div key={`mobile-shell-${activeWork.id}`} className="mobile-work-frame-shell">
+                        <iframe
+                          key={`mobile-frame-${activeWork.id}`}
+                          src={activeWork.previewSrc}
+                          title={`${activeWork.title[displayLang]} website preview`}
+                          scrolling="yes"
+                          loading="eager"
+                          className="mobile-work-frame is-active"
+                        />
+                      </div>
                     ) : (
                       <>
                         {enabledWorkFrames.map((work) => {
