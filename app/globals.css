@@ -1774,6 +1774,7 @@ button {
 .work-browser__viewport iframe {
   position: absolute;
   inset: 0;
+  z-index: 2;
   display: block;
   width: calc(100% + 24px);
   height: 100%;
@@ -1833,7 +1834,7 @@ button {
   content: "";
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: 4;
   background: transparent;
   cursor: default;
 }
@@ -2575,12 +2576,12 @@ button {
     height: 100%;
   }
 
-  .work-browser__viewport iframe:not(.is-active) {
+  .mobile-site-preview {
     display: none;
   }
 
-  .mobile-site-preview {
-    display: none;
+  .infographic-stage {
+    touch-action: pan-y;
   }
 
   .infographic-stage::before {

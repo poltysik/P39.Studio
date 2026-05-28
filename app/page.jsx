@@ -965,9 +965,11 @@ export default function Home() {
   const [activeInfographicIndex, setActiveInfographicIndex] = useState(0);
   const [activeWorkCategoryIndex, setActiveWorkCategoryIndex] = useState(0);
   const [workCategoryMotionKey, setWorkCategoryMotionKey] = useState(0);
+  const [isMobileFrameMode, setIsMobileFrameMode] = useState(false);
   const [workFramesEnabled, setWorkFramesEnabled] = useState([]);
   const [workFramesWarmupStarted, setWorkFramesWarmupStarted] = useState(false);
   const [loadedWorkFrames, setLoadedWorkFrames] = useState({});
+  const [workFrameLoaderFallbacks, setWorkFrameLoaderFallbacks] = useState({});
   const [workFrameHeights, setWorkFrameHeights] = useState({});
   const [navMotion, setNavMotion] = useState({ drift: 0, panelShift: 0 });
   const [navReady, setNavReady] = useState(false);
@@ -975,6 +977,7 @@ export default function Home() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const worksSectionRef = useRef(null);
   const workPreviewTouchHandledRef = useRef(false);
+  const infographicSwipeStartRef = useRef(null);
   const displayLang = translation.active ? translation.target : lang;
   const t = copy[displayLang];
 
@@ -1001,6 +1004,15 @@ export default function Home() {
     document.documentElement.dataset.theme = theme;
     document.documentElement.lang = lang;
   }, [theme, lang]);
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 720px)");
+    const syncFrameMode = () => setIsMobileFrameMode(media.matches);
+
+    syncFrameMode();
+    media.addEventListener?.("change", syncFrameMode);
+    return () => media.removeEventListener?.("change", syncFrameMode);
+  }, []);
 
   useEffect(() => {
     trackStatsEvent("page_view");
@@ -1117,7 +1129,7 @@ export default function Home() {
 
   useEffect(() => {
     const worksSection = worksSectionRef.current;
-    if (!worksSection || workFramesWarmupStarted) return;
+    if (!worksSection || workFramesWarmupStarted || isMobileFrameMode) return;
 
     const observer = new IntersectionObserver((entries) => {
       if (!entries.some((entry) => entry.isIntersecting)) return;
@@ -1128,10 +1140,10 @@ export default function Home() {
 
     observer.observe(worksSection);
     return () => observer.disconnect();
-  }, [activeWorkIndex, workFramesWarmupStarted]);
+  }, [activeWorkIndex, workFramesWarmupStarted, isMobileFrameMode]);
 
   useEffect(() => {
-    if (!workFramesWarmupStarted) return;
+    if (!workFramesWarmupStarted || isMobileFrameMode) return;
 
     const orderedIndexes = [
       activeWorkIndex,
@@ -1147,7 +1159,7 @@ export default function Home() {
     ));
 
     return () => timers.forEach((timer) => window.clearTimeout(timer));
-  }, [activeWorkIndex, workFramesWarmupStarted]);
+  }, [activeWorkIndex, workFramesWarmupStarted, isMobileFrameMode]);
 
   const serviceGroups = useMemo(() => t.serviceGroups, [t.serviceGroups]);
   const controlsLocked = translation.active || themeVeil.active;
@@ -1161,7 +1173,19 @@ export default function Home() {
   const activeShowcaseItem = isInfographicsCategory ? activeInfographic : activeWork;
   const activeWorkTags = activeShowcaseItem.tags[displayLang];
   const activeWorkUrlLabel = isInfographicsCategory ? activeShowcaseItem.urlLabel[displayLang] : activeShowcaseItem.urlLabel;
-  const enabledWorkFrames = portfolioWorks.filter((_, index) => workFramesEnabled.includes(index));
+  const enabledWorkFrames = isMobileFrameMode
+    ? [activeWork]
+    : portfolioWorks.filter((_, index) => workFramesEnabled.includes(index));
+
+  useEffect(() => {
+    if (isInfographicsCategory || loadedWorkFrames[activeWorkIndex]) return;
+
+    const timer = window.setTimeout(() => {
+      setWorkFrameLoaderFallbacks((current) => ({ ...current, [activeWorkIndex]: true }));
+    }, 3200);
+
+    return () => window.clearTimeout(timer);
+  }, [activeWorkIndex, isInfographicsCategory, loadedWorkFrames]);
 
   const switchWork = (direction) => {
     if (isInfographicsCategory) {
@@ -1192,6 +1216,26 @@ export default function Home() {
       const count = t.worksCategories.length;
       return (current + direction + count) % count;
     });
+  };
+
+  const startInfographicSwipe = (event) => {
+    if (!isInfographicsCategory || event.pointerType === "mouse") return;
+    infographicSwipeStartRef.current = {
+      x: event.clientX,
+      y: event.clientY
+    };
+  };
+
+  const finishInfographicSwipe = (event) => {
+    const start = infographicSwipeStartRef.current;
+    infographicSwipeStartRef.current = null;
+    if (!start || !isInfographicsCategory || event.pointerType === "mouse") return;
+
+    const deltaX = event.clientX - start.x;
+    const deltaY = event.clientY - start.y;
+    if (Math.abs(deltaX) < 42 || Math.abs(deltaX) < Math.abs(deltaY) * 1.2) return;
+
+    switchWork(deltaX < 0 ? 1 : -1);
   };
 
   const registerWorkFrameLoad = (index, frame) => {
@@ -1449,7 +1493,15 @@ export default function Home() {
                     transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
                   >
                     {isInfographicsCategory ? (
-                      <div className="infographic-stage" aria-label={displayLang === "ru" ? "Примеры инфографики" : "Infographic examples"}>
+                      <div
+                        className="infographic-stage"
+                        aria-label={displayLang === "ru" ? "Примеры инфографики" : "Infographic examples"}
+                        onPointerDown={startInfographicSwipe}
+                        onPointerUp={finishInfographicSwipe}
+                        onPointerCancel={() => {
+                          infographicSwipeStartRef.current = null;
+                        }}
+                      >
                         {infographicWorks.map((work, index) => {
                           const offset = index - activeInfographicIndex;
                           const wrappedOffset = offset > infographicWorks.length / 2
@@ -1498,18 +1550,11 @@ export default function Home() {
                             />
                           );
                         })}
-                        {!loadedWorkFrames[activeWorkIndex] && (
+                        {!loadedWorkFrames[activeWorkIndex] && !workFrameLoaderFallbacks[activeWorkIndex] && (
                           <div className="work-browser__loading" aria-hidden="true">
                             <span className="work-browser__loading-logo">P39</span>
                           </div>
                         )}
-                        <a href={activeWork.href} target="_blank" rel="noreferrer" className="mobile-site-preview" aria-label={`${t.workOpenSite}: ${activeWork.title[displayLang]}`}>
-                          <Image src={activeWork.mobilePreviewSrc} alt={`${activeWork.title[displayLang]} mobile preview`} fill sizes="(max-width: 720px) 100vw, 0px" className="mobile-site-preview__image" />
-                          <span className="mobile-site-preview__cta">
-                            <DecodeText value={t.workOpenSite} reserveValue={stableText.workOpenSite} {...decodeProps} />
-                            <ArrowRight size={14} />
-                          </span>
-                        </a>
                       </>
                     )}
                   </motion.div>
