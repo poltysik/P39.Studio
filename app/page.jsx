@@ -471,7 +471,7 @@ function HeroIntroText({ value, reserveValue, className = "", as = "p", active =
   }, []);
 
   const display = !started
-    ? value
+    ? ""
     : complete
       ? active
         ? scrambleText(value, tick)
@@ -517,7 +517,7 @@ function HeroCtaLabel({ value, reserveValue, active = false, tick = 0 }) {
   }, []);
 
   const display = !started
-    ? value
+    ? ""
     : complete
       ? active
         ? scrambleText(value, tick)
@@ -1424,7 +1424,7 @@ export default function Home() {
               </div>
             </div>
 
-            <motion.div className={`work-browser work-browser--${activeWorkCategorySlug} work-browser--pulse-${workCategoryMotionKey % 2 === 0 ? "a" : "b"}`} initial={false} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}>
+            <motion.div className={`work-browser work-browser--${activeWorkCategorySlug} work-browser--pulse-${workCategoryMotionKey % 2 === 0 ? "a" : "b"}`} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}>
               <div className="work-browser__top">
                 <div className="work-browser__dots" aria-label="Индикаторы примеров работ">
                   {activeWorkItems.map((work, index) => (
