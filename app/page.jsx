@@ -471,7 +471,7 @@ function HeroIntroText({ value, reserveValue, className = "", as = "p", active =
   }, []);
 
   const display = !started
-    ? ""
+    ? value
     : complete
       ? active
         ? scrambleText(value, tick)
@@ -517,7 +517,7 @@ function HeroCtaLabel({ value, reserveValue, active = false, tick = 0 }) {
   }, []);
 
   const display = !started
-    ? ""
+    ? value
     : complete
       ? active
         ? scrambleText(value, tick)
@@ -1351,7 +1351,7 @@ export default function Home() {
 
       <section id="top" className="relative z-10 min-h-[100svh] px-5 pt-24 sm:min-h-screen sm:px-8">
         <div className="hero-axis mx-auto flex min-h-[calc(100svh-6rem)] max-w-7xl items-center justify-center sm:min-h-[calc(100vh-6rem)]">
-          <motion.div className="flex flex-col items-center text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
+          <motion.div className="flex flex-col items-center text-center" initial={false} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
             <BrandText as="h1" variant="hero" className="max-w-none text-[clamp(8.4rem,34vw,22.5rem)] font-semibold leading-[0.86] tracking-normal sm:text-[clamp(6.1rem,26vw,22.5rem)]" />
             <HeroIntroText value={t.heroAlt} reserveValue={stableText.heroAlt} {...decodeProps} as="p" className="hero-typewriter mt-8 max-w-none text-[0.8rem] uppercase leading-relaxed tracking-[0.19em] text-[color:var(--dim)] sm:mt-10 sm:text-lg sm:tracking-[0.28em]" />
             <button onClick={() => { trackStatsEvent("cta_click", { cta: "hero_create_project" }); trackStatsEvent("contact_open", { source: "hero" }); openTerminalWithMobileFocus(setModalOpen); }} className="hero-cta mt-8 inline-flex items-center justify-center rounded-full text-sm uppercase tracking-[0.18em] sm:mt-10">
@@ -1424,7 +1424,7 @@ export default function Home() {
               </div>
             </div>
 
-            <motion.div className={`work-browser work-browser--${activeWorkCategorySlug} work-browser--pulse-${workCategoryMotionKey % 2 === 0 ? "a" : "b"}`} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}>
+            <motion.div className={`work-browser work-browser--${activeWorkCategorySlug} work-browser--pulse-${workCategoryMotionKey % 2 === 0 ? "a" : "b"}`} initial={false} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}>
               <div className="work-browser__top">
                 <div className="work-browser__dots" aria-label="Индикаторы примеров работ">
                   {activeWorkItems.map((work, index) => (
